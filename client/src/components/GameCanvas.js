@@ -53,15 +53,19 @@ export default class GameCanvas extends React.Component {
     canvasUpdate = (data) => {
         //console.log('Canvas', data.getSaveData());
         this.state.socket.emit('canvasUpdate', {
-            'nickname': this.state.socket.nickname,
+            'id': this.state.socket.id,
             'data': data.getSaveData()
         });
     }
 
     render() {
 
-        this.state.socket.on('updateAllCanvases', (e) => {
-            //this.saveableCanvas.loadSaveData(e);
+        this.state.socket.on('updateAllCanvases', (obj) => {
+            /* if(obj.id != this.state.socket.id){
+                this.saveableCanvas.loadSaveData(obj.data);
+            } */
+            console.log('my id', this.state.socket.id);
+            console.log('artist id', obj.id);
         })
         
         return(

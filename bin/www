@@ -50,7 +50,10 @@ io.on('connection', function(socket){
   socket.on('canvasUpdate', (obj) => {
     console.log(obj);
     
-    io.emit('updateAllCanvases', obj.data);
+    io.emit('updateAllCanvases', {
+      id: obj.id,
+      data: obj.data
+    });
   });
 });
 
