@@ -25,9 +25,27 @@ var server = http.createServer(app);
  * Setup socket io
  */
 var io = require('socket.io')(server);
+
+/* 
+  Store users as objects (id and nickname) so multiple users can have the same nickname, but not the same id 
+*/
+
+/* 
+  User:
+  id, nickname, room(id?)
+*/
 let users = [];
 let ids = [];
+
 io.on('connection', function(socket){
+
+  socket.on('create room', () => {
+    const rnd = Math.floor(Math.random() * 10000);
+    console.log(rnd);
+    socket.join(rnd);
+    console.log(socket.id + " has joined room " + rnd)
+    socket.emit('room created')
+  });
 
   socket.on('send-nickname', (nickname) => {
 

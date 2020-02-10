@@ -1,4 +1,6 @@
 import React from 'react';
+import io from 'socket.io-client';
+import {Redirect} from "react-router-dom";
 
 import {
     Button,
@@ -12,26 +14,52 @@ export default class Home extends React.Component {
         this.state = {
             socket: props.socket,
             nickname: "",
-            roomNumber: ""
-        }   
+            roomNumber: "",
+            roomCreated: false
+        }
     }
 
     setNickname = () => {
         //TODO: check if name is taken
-        console.log('Set nickname', this.state.nickname)
+        if(this.state.nickname != "") this.state.socket.emit('send-nickname', this.state.nickname);
     }
     
     joinRoom = () => {
         // make sure nickname is set
-        console.log('Join room', this.state.roomNumber)
     }
 
     createRoom = _ => {
-        // make sure nickname is set
+        /* 
+            make sure nickname is set
+            add room to user in users array?
+            on the backend, socket.join(random name)
+            load board page. (add room id as a prop somehow?)
+            have room id in the url?
+
+            Don't change to board page until the backend emits back to the frontend confirming the room was joined
+         */
         console.log('Create room')
+        if(this.state.nickname != ""){
+            this.state.socket.emit('create room');
+        } else {
+            console.error("Please set nickname");
+        }
+
+        this.state.socket.on('room created', () => {
+            console.log('created room successfully')
+            this.setState({
+                roomCreated: true
+            });
+        });        
+
     }
 
+
+
     render(){
+        if (this.state.roomCreated) {
+            return <Redirect to={"/board"} />
+        }
         return (
             <div>
                 <h4>Home</h4>
@@ -49,8 +77,10 @@ export default class Home extends React.Component {
                 <div className="homeFormGroup">
                     <Button type="primary" onClick={this.createRoom}>Create Room</Button>
                 </div>
-
             </div>
+            
+
+
         );
     }
 }

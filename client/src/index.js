@@ -46,7 +46,7 @@ ReactDOM.render((
                 <Board socket={socket} />
             </Route>
             <Route path="/">
-                <Home />
+                <Home socket={socket} />
             </Route>
         </Switch>
       </div>
