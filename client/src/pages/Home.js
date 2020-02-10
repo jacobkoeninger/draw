@@ -7,18 +7,29 @@ import {
 
 export default class Home extends React.Component {
 
-    /* 
-       Title
-       
-       block inputs:
-        - Room id,
-        - (maybe room password),
-        - nickname
-        - join button
+    constructor(props){
+        super(props);
+        this.state = {
+            socket: props.socket,
+            nickname: "",
+            roomNumber: ""
+        }   
+    }
 
-        Create room button (require nickname as well)
+    setNickname = () => {
+        //TODO: check if name is taken
+        console.log('Set nickname', this.state.nickname)
+    }
+    
+    joinRoom = () => {
+        // make sure nickname is set
+        console.log('Join room', this.state.roomNumber)
+    }
 
-    */
+    createRoom = _ => {
+        // make sure nickname is set
+        console.log('Create room')
+    }
 
     render(){
         return (
@@ -26,17 +37,17 @@ export default class Home extends React.Component {
                 <h4>Home</h4>
                 
                 <div className="homeFormGroup">
-                    <Input placeholder="Nickname" />
-                    <Button type="primary">Set</Button>
+                    <Input onChange={(e) => {this.setState({nickname: e.target.value})}} placeholder="Nickname" />
+                    <Button type="primary" onClick={this.setNickname} >Set</Button>
                 </div>
 
                 <div className="homeFormGroup">
-                    <Input placeholder="Room #" />
-                    <Button type="primary">Join</Button>
+                    <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
+                    <Button type="primary" onClick={this.joinRoom}>Join</Button>
                 </div>
 
                 <div className="homeFormGroup">
-                    <Button type="primary">Create Room</Button>
+                    <Button type="primary" onClick={this.createRoom}>Create Room</Button>
                 </div>
 
             </div>
