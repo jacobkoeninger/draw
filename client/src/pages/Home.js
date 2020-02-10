@@ -1,5 +1,10 @@
 import React from 'react';
 
+import {
+    Button,
+    Input
+} from 'antd';
+
 export default class Home extends React.Component {
 
     /* 
@@ -18,7 +23,22 @@ export default class Home extends React.Component {
     render(){
         return (
             <div>
-                Home
+                <h4>Home</h4>
+                
+                <div className="homeFormGroup">
+                    <Input placeholder="Nickname" />
+                    <Button type="primary">Set</Button>
+                </div>
+
+                <div className="homeFormGroup">
+                    <Input placeholder="Room #" />
+                    <Button type="primary">Join</Button>
+                </div>
+
+                <div className="homeFormGroup">
+                    <Button type="primary">Create Room</Button>
+                </div>
+
             </div>
         );
     }
