@@ -25,12 +25,32 @@ var server = http.createServer(app);
  * Setup socket io
  */
 var io = require('socket.io')(server);
-
+let users = [];
+let ids = [];
 io.on('connection', function(socket){
+
+  socket.on('send-nickname', (nickname) => {
+
+    if(users.indexOf(nickname) == -1){      
+        socket.nickname = nickname;
+        users.push(socket.nickname);
+    } else {
+      // emit something to the user that this name is taken
+    }
+
+    if(ids.includes(socket.id) == -1){
+      ids.push(socket.id);
+    }
+
+    console.log('users', users);
+  
+  });
+
   console.log('a user connected');
-  socket.on('canvasUpdate', (canvasData) => {
-    console.log(canvasData);
-    io.emit('updateAllCanvases', canvasData);
+  socket.on('canvasUpdate', (obj) => {
+    console.log(obj);
+    
+    io.emit('updateAllCanvases', obj.data);
   });
 });
 

@@ -13,13 +13,14 @@ export default class GameCanvas extends React.Component {
             console.log('change')
         } */
         this.state = {
-            canvas: canvas
+            canvas: canvas,
+            socket: props.socket
         }
     }
 
     saveableCanvas;
 
-    socket = io(`http://localhost:3001`);
+    //socket = io(`http://localhost:3001`);
 
     /* io.on('connection', (socket) => {
         socket.on('updateAllCanvases', (data) => {
@@ -31,7 +32,7 @@ export default class GameCanvas extends React.Component {
 
 
     componentDidMount() {
-        this.socket.on('connection', (socket) => {
+        this.state.socket.on('connection', (socket) => {
             console.log('connected')
             
             //socket.broadcast.emit('hi');
@@ -51,13 +52,16 @@ export default class GameCanvas extends React.Component {
 
     canvasUpdate = (data) => {
         //console.log('Canvas', data.getSaveData());
-        this.socket.emit('canvasUpdate', data.getSaveData());
+        this.state.socket.emit('canvasUpdate', {
+            'nickname': this.state.socket.nickname,
+            'data': data.getSaveData()
+        });
     }
 
     render() {
 
-        this.socket.on('updateAllCanvases', (e) => {
-            this.saveableCanvas.loadSaveData(e);
+        this.state.socket.on('updateAllCanvases', (e) => {
+            //this.saveableCanvas.loadSaveData(e);
         })
         
         return(
@@ -70,6 +74,12 @@ export default class GameCanvas extends React.Component {
             <button onClick={() => {
                 this.saveableCanvas.undo();
             }}>Undo</button>
+            <button onClick={() => {
+                this.saveableCanvas.clear();
+            }}>Clear</button>
+            <button onClick={() => {
+                console.log(this.state.socket)
+            }}>Log data</button>
           </div>
         )
     }
