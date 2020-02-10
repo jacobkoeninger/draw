@@ -55,7 +55,7 @@ export default class GameCanvas extends React.Component {
         this.state.socket.emit('canvasUpdate', {
             'id': this.state.socket.id,
             'data': data.getSaveData()
-        });
+        });        
     }
 
     render() {
@@ -67,6 +67,8 @@ export default class GameCanvas extends React.Component {
             console.log('my id', this.state.socket.id);
             console.log('artist id', obj.id);
         })
+
+        this.state.socket.on('test', _ => console.log('test'))        
         
         return(
           <div>
