@@ -1,9 +1,11 @@
 import React from 'react';
 import CanvasDraw from "react-canvas-draw";
+import io from 'socket.io-client';
 
 
 export default class GameCanvas extends React.Component {
 
+    
     constructor(props){
         super(props);
         let canvas = <CanvasDraw />
@@ -17,8 +19,25 @@ export default class GameCanvas extends React.Component {
 
     saveableCanvas;
 
+    socket = io(`http://localhost:3001`);
+
+    /* io.on('connection', (socket) => {
+        socket.on('updateAllCanvases', (data) => {
+            console.log('emit data', data);
+        });
+    }) */
+
+    
+
+
     componentDidMount() {
-        
+        this.socket.on('connection', (socket) => {
+            console.log('connected')
+            
+            //socket.broadcast.emit('hi');
+            //socket.broadcast.emit('test');
+            //socket.emit('test');
+        });
     }
 
     componentDidUpdate = () => {
@@ -29,18 +48,18 @@ export default class GameCanvas extends React.Component {
         return this.state.canvas;
     }
 
-    printData = () => {
-        console.log(this.state.canvas);
-    }
-    saveData = () => {
-        console.log('save')
-    }
 
     canvasUpdate = (data) => {
-        console.log('canvas data', data.getSaveData());
+        //console.log('Canvas', data.getSaveData());
+        this.socket.emit('canvasUpdate', data.getSaveData());
     }
 
     render() {
+
+        this.socket.on('updateAllCanvases', (e) => {
+            this.saveableCanvas.loadSaveData(e);
+        })
+        
         return(
           <div>
             { /* this.getCanvas() */ }
@@ -48,8 +67,6 @@ export default class GameCanvas extends React.Component {
                 ref={canvasDraw => (this.saveableCanvas = canvasDraw)}
                 onChange={(canvasDraw) => this.canvasUpdate(canvasDraw)}
             />
-            <button onClick={this.printData}>printData</button>
-            <button onClick={this.saveData}>saveData</button>
             <button onClick={() => {
                 this.saveableCanvas.undo();
             }}>Undo</button>

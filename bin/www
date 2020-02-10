@@ -28,9 +28,10 @@ var io = require('socket.io')(server);
 
 io.on('connection', function(socket){
   console.log('a user connected');
-  socket.on('test', () => {
-    console.log('hello again')
-  })
+  socket.on('canvasUpdate', (canvasData) => {
+    console.log(canvasData);
+    io.emit('updateAllCanvases', canvasData);
+  });
 });
 
 /**
