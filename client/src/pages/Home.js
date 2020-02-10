@@ -15,7 +15,7 @@ export default class Home extends React.Component {
             socket: props.socket,
             nickname: "",
             roomNumber: "",
-            roomCreated: false
+            roomJoined: false
         }
     }
 
@@ -26,6 +26,9 @@ export default class Home extends React.Component {
     
     joinRoom = () => {
         // make sure nickname is set
+        if(this.state.nickname != "" && this.state.roomNumber != "") {
+            this.state.socket.emit('join room', this.state.roomNumber)
+        };
     }
 
     createRoom = _ => {
@@ -38,17 +41,16 @@ export default class Home extends React.Component {
 
             Don't change to board page until the backend emits back to the frontend confirming the room was joined
          */
-        console.log('Create room')
         if(this.state.nickname != ""){
             this.state.socket.emit('create room');
         } else {
             console.error("Please set nickname");
         }
 
-        this.state.socket.on('room created', () => {
+        this.state.socket.on('room joined', () => {
             console.log('created room successfully')
             this.setState({
-                roomCreated: true
+                roomJoined: true
             });
         });        
 
@@ -57,7 +59,7 @@ export default class Home extends React.Component {
 
 
     render(){
-        if (this.state.roomCreated) {
+        if (this.state.roomJoined) {
             return <Redirect to={"/board"} />
         }
         return (
@@ -78,9 +80,6 @@ export default class Home extends React.Component {
                     <Button type="primary" onClick={this.createRoom}>Create Room</Button>
                 </div>
             </div>
-            
-
-
         );
     }
 }

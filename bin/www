@@ -36,15 +36,27 @@ var io = require('socket.io')(server);
 */
 let users = [];
 let ids = [];
+let rooms = [];
 
 io.on('connection', function(socket){
 
+  socket.on('join room', (roomId) => {
+    socket.join(roomId);
+    console.log(socket.id + " joined room " + roomId)
+    socket.emit('room joined');
+  });
+
+  /* Maybe give room id on socket emit room joined */
+
   socket.on('create room', () => {
     const rnd = Math.floor(Math.random() * 10000);
-    console.log(rnd);
+    rooms.push({
+      id: rnd,
+      players: []
+    });
     socket.join(rnd);
     console.log(socket.id + " has joined room " + rnd)
-    socket.emit('room created')
+    socket.emit('room joined');
   });
 
   socket.on('send-nickname', (nickname) => {
