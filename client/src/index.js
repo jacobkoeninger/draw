@@ -20,7 +20,7 @@ ReactDOM.render((
                 <Board />
             </Route>
             <Route path="/">
-                <Home />        
+                <Home />
             </Route>
         </Switch>
     </Router>
