@@ -25,6 +25,10 @@ export default class Home extends React.Component {
         this.joinRoomSocket();
     }
 
+    componentDidMount = () => {
+        //console.log(this.props.user)
+    }
+
     setNickname = () => {
         if(this.state.nickname != ""){
             this.state.socket.emit('send-nickname', this.state.nickname)

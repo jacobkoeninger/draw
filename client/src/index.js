@@ -15,16 +15,22 @@ import {
     Link
   } from "react-router-dom";
 
-let socket = io(`http://localhost:3001`)
+let socket = io(`http://localhost:3001`);
 
 let user = {
     room: null,
     nickname: "",
-    id: socket.id
+    id: null
 };
+
+socket.on('sendId', (id) => {
+  console.log(id);
+  user.id = id;
+});
 
 const setNickname = (nick) => user.nickname = nick;
 const setRoom = (num) => user.room = num;
+const setId = (id) => user.id = id;
 
 ReactDOM.render((
     
@@ -55,7 +61,7 @@ ReactDOM.render((
                 <Board socket={socket} user={user} />
             </Route>
             <Route path="/">
-                <Home socket={socket} setNickname={setNickname} setRoom={setRoom} user={user} />
+                <Home socket={socket} setId={setId} setNickname={setNickname} setRoom={setRoom} user={user} />
             </Route>
         </Switch>
       </div>

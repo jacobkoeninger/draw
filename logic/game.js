@@ -104,6 +104,7 @@ function SiteLogic(server) {
     };
     var joinGameSocket = function (socket) {
         socket.on('join game', function (obj) {
+            console.log('player who joined game', obj);
             var gameFound = findGame(obj.roomId);
             if (!gameFound) {
                 console.log('room not found', obj.roomId);
@@ -152,6 +153,11 @@ function SiteLogic(server) {
             }
         });
     };
+    var startGameSocket = function (socket) {
+        socket.on('start game', function () {
+            console.log(socket.id + ' is trying to start their game');
+        });
+    };
     function findGame(roomId) {
         var gameFound = null;
         games.forEach(function (game) {
@@ -179,12 +185,14 @@ function SiteLogic(server) {
             onlineUsers.push(user);
     }
     io.on('connection', function (socket) {
+        socket.emit('sendId', socket.id);
         joinGameSocket(socket);
         createGameSocket(socket);
         updateNicknameSocket(socket);
         console.log(socket.id + ' has connected');
         updateCanvasSocket(socket);
         getLobbyInfoSocket(socket);
+        startGameSocket(socket);
     });
 }
 exports["default"] = SiteLogic;

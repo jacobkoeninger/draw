@@ -1,6 +1,6 @@
 import React from 'react';
 import GameCanvas from '../components/GameCanvas';
-import io from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
 import {Redirect} from "react-router-dom";
 import {
     Button
@@ -44,7 +44,8 @@ export default class Board extends React.Component {
     }
 
     startGame = () => {
-        console.log('start game')
+        console.log('start game');
+        this.state.socket.emit('start game');
     }
 
     showStartButton = () => {

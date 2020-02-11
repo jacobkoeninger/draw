@@ -148,7 +148,7 @@ export default function SiteLogic(server) {
 
     const joinGameSocket = (socket) => {
         socket.on('join game', (obj) => {
-            
+            console.log('player who joined game', obj);
             const gameFound = findGame(obj.roomId);
 
             if(!gameFound){
@@ -204,6 +204,12 @@ export default function SiteLogic(server) {
         });
     }
 
+    const startGameSocket = (socket) => {
+        socket.on('start game', () => {
+            console.log(socket.id + ' is trying to start their game');
+        });
+    }
+
     function findGame(roomId: string){
         let gameFound = null;
         games.forEach((game) => {
@@ -230,6 +236,8 @@ export default function SiteLogic(server) {
     }
 
     io.on('connection', function(socket){
+        
+        socket.emit('sendId', socket.id);
 
         joinGameSocket(socket);
 
@@ -242,6 +250,9 @@ export default function SiteLogic(server) {
         updateCanvasSocket(socket);
 
         getLobbyInfoSocket(socket);
+
+        startGameSocket(socket);
+
     });
 
     
