@@ -20,6 +20,7 @@ class Game {
 
     host: User; // user obj
     room: string;
+    status: string;
     round_length: number; // in seconds
     max_rounds: number;
     max_players: number;
@@ -34,6 +35,7 @@ class Game {
     player_turns: Array<User>;
 
     constructor(host: User, room: string, words: Array<string>, max_rounds: number){
+        this.status = "lobby";
         this.host = host;
         this.room = room;
         this.round_length = 60;
@@ -57,6 +59,7 @@ class Game {
         /* 
             TODO:
             - set player_turns (randomize all of the game's players into the array)
+            - set status to active
             - run start round
         */
     }
@@ -134,7 +137,7 @@ export default function SiteLogic(server) {
                 players: []
             });
             //console.log('??: ' + roomId);
-            const NEW_GAME = new Game(user, roomId.toString(), ["a", "b", "c"], 10);
+            const NEW_GAME = new Game(user, roomId.toString(), [], 10);
             games.push(NEW_GAME); //? host, room, words, max_rounds
             //console.log(games);
             socket.join(NEW_GAME.room);
@@ -180,9 +183,9 @@ export default function SiteLogic(server) {
         socket.on('updateCanvas', (obj) => {
             console.log(obj.room);
             if(obj){
-            socket.to(obj.room).emit('updateAllCanvases', {
-                data: obj.data
-            });
+                socket.to(obj.room).emit('updateAllCanvases', {
+                    data: obj.data
+                });
             }
             /* io.emit('updateAllCanvases', {
             id: obj.id,
@@ -198,8 +201,8 @@ export default function SiteLogic(server) {
             console.log('Searching for game with ID: ' + roomId);
             console.log('lobby found', GAME_FOUND);
             if(GAME_FOUND) {
-                io.in(roomId).emit('lobby info', GAME_FOUND); //?
-                //socket.emit('lobby info', lobby);
+                io.in(roomId).emit('game info', GAME_FOUND);
+                //socket.emit('game info', lobby);
             }
         });
     }
@@ -207,6 +210,15 @@ export default function SiteLogic(server) {
     const startGameSocket = (socket) => {
         socket.on('start game', () => {
             console.log(socket.id + ' is trying to start their game');
+        });
+    }
+
+    const chatMessageSocket = (socket) => {
+        socket.on('send message', (obj) => {
+            io.in(Object.keys(socket.rooms)[0]).emit('receive message', {
+                message: obj.message,
+                nickname: socket.nickname
+            });
         });
     }
 
@@ -222,7 +234,7 @@ export default function SiteLogic(server) {
                 }
                 return false;
             });
-            io.in(game.room).emit('lobby info', game);
+            io.in(game.room).emit('game info', game);
         });
     };
 
@@ -270,6 +282,8 @@ export default function SiteLogic(server) {
         getLobbyInfoSocket(socket);
 
         startGameSocket(socket);
+
+        chatMessageSocket(socket);
 
     });
     

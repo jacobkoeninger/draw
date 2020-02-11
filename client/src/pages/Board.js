@@ -26,13 +26,12 @@ export default class Board extends React.Component {
 
     componentDidMount = () => {
         // TODO: - Socket emit that they have joined the lobby (receive back whether they are host or not, and the current players in the game)    
-        console.log(this.props.user.room);
+        
         this.state.socket.emit('joined lobby', this.props.user.room);
 
-        this.state.socket.on('lobby info', (game) => {
+        this.state.socket.on('game info', (game) => {
             // get info to find out if User is host. if host, then show play button. 
             // on play button click, emit (include user in emit?)
-            console.log('received lobby info');
             this.setState({
                 game: game
             });
@@ -84,7 +83,7 @@ export default class Board extends React.Component {
                 </div>
                 <br />
                 <GameCanvas socket={this.state.socket} user={this.props.user} />
-                <GameChat user={this.props.user} />
+                <GameChat socket={this.state.socket} user={this.props.user} game={this.state.game} />
             </div>
         );
     }

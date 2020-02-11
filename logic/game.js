@@ -5,6 +5,7 @@ var games = [];
 ;
 var Game = /** @class */ (function () {
     function Game(host, room, words, max_rounds) {
+        this.status = "lobby";
         this.host = host;
         this.room = room;
         this.round_length = 60;
@@ -26,6 +27,7 @@ var Game = /** @class */ (function () {
         /*
             TODO:
             - set player_turns (randomize all of the game's players into the array)
+            - set status to active
             - run start round
         */
     };
@@ -92,7 +94,7 @@ function SiteLogic(server) {
                 players: []
             });
             //console.log('??: ' + roomId);
-            var NEW_GAME = new Game(user, roomId.toString(), ["a", "b", "c"], 10);
+            var NEW_GAME = new Game(user, roomId.toString(), [], 10);
             games.push(NEW_GAME); //? host, room, words, max_rounds
             //console.log(games);
             socket.join(NEW_GAME.room);
@@ -148,14 +150,22 @@ function SiteLogic(server) {
             console.log('Searching for game with ID: ' + roomId);
             console.log('lobby found', GAME_FOUND);
             if (GAME_FOUND) {
-                io["in"](roomId).emit('lobby info', GAME_FOUND); //?
-                //socket.emit('lobby info', lobby);
+                io["in"](roomId).emit('game info', GAME_FOUND);
+                //socket.emit('game info', lobby);
             }
         });
     };
     var startGameSocket = function (socket) {
         socket.on('start game', function () {
             console.log(socket.id + ' is trying to start their game');
+        });
+    };
+    var chatMessageSocket = function (socket) {
+        socket.on('send message', function (obj) {
+            io["in"](Object.keys(socket.rooms)[0]).emit('receive message', {
+                message: obj.message,
+                nickname: socket.nickname
+            });
         });
     };
     var handleDisconnect = function (socketId) {
@@ -170,7 +180,7 @@ function SiteLogic(server) {
                 }
                 return false;
             });
-            io["in"](game.room).emit('lobby info', game);
+            io["in"](game.room).emit('game info', game);
         });
     };
     function findGame(roomId) {
@@ -209,6 +219,7 @@ function SiteLogic(server) {
         updateCanvasSocket(socket);
         getLobbyInfoSocket(socket);
         startGameSocket(socket);
+        chatMessageSocket(socket);
     });
 }
 exports["default"] = SiteLogic;

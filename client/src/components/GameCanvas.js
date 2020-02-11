@@ -39,7 +39,7 @@ export default class GameCanvas extends React.Component {
 
 
     componentDidMount() {
-
+        
         /* this.state.socket.on('connection', (socket) => {
             console.log('connected');
         }); */
