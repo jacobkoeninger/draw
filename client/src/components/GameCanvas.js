@@ -34,8 +34,7 @@ export default class GameCanvas extends React.Component {
     componentDidMount() {
 
         this.state.socket.on('connection', (socket) => {
-            console.log('connected')
-            
+            console.log('connected');
             //socket.broadcast.emit('hi');
             //socket.broadcast.emit('test');
             //socket.emit('test');
@@ -51,8 +50,9 @@ export default class GameCanvas extends React.Component {
     }
 
 
-    canvasUpdate = (data) => {
+    canvasUpdate = (data, canvas) => {
         //console.log('Canvas', data.getSaveData());
+        this.setState({canvas: canvas});
         this.state.socket.emit('updateCanvas', {
             'data': data.getSaveData(),
             'room': this.props.user.room
@@ -62,25 +62,31 @@ export default class GameCanvas extends React.Component {
     render() {
 
         this.state.socket.on('updateAllCanvases', (obj) => {
-            //if(obj.id != this.state.socket.id){
-                this.saveableCanvas.loadSaveData(obj.data);
-            //} 
-            console.log('my id', this.state.socket.id);
-            console.log('artist id', obj.id);
+            //console.log(obj);
+            if(obj.id != this.state.socket.id){
+                this.state.canvas.loadSaveData(obj.data);
+                //this.saveableCanvas.loadSaveData(obj.data);
+            }
+            //console.log(this.saveableCanvas);
         })
-
-        this.state.socket.on('test', _ => console.log('test'))        
         
         return(
           <div>
-            { /* this.getCanvas() */ }
             <CanvasDraw
                 ref={canvasDraw => (this.saveableCanvas = canvasDraw)}
-                onChange={(canvasDraw) => this.canvasUpdate(canvasDraw)}
-                loadTimeOffset = {0}
+                onChange={(canvasDraw) => {
+                    this.canvasUpdate(canvasDraw, this.saveableCanvas);
+                    this.setState({
+                        canvas: this.saveableCanvas
+                    });
+                }}
+                loadTimeOffset = {5}
             />
             <button onClick={() => {
                 this.saveableCanvas.undo();
+                this.setState({
+                    canvas: this.saveableCanvas
+                });
             }}>Undo</button>
             <button onClick={() => {
                 this.saveableCanvas.clear();

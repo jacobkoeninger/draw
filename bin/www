@@ -103,9 +103,11 @@ io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('updateCanvas', (obj) => {
     console.log(obj.room);
-    socket.to(obj.room).emit('updateAllCanvases', {
-      data: obj.data
-    });
+    if(obj){
+      socket.to(obj.room).emit('updateAllCanvases', {
+        data: obj.data
+      });
+    }
     /* io.emit('updateAllCanvases', {
       id: obj.id,
       data: obj.data
