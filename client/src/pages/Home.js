@@ -30,7 +30,8 @@ export default class Home extends React.Component {
     joinRoom = () => {
         // make sure nickname is set
         if(this.state.nickname != "" && this.state.roomNumber != "") {
-            this.state.socket.emit('join room', this.state.roomNumber);            
+            //this.props.setRoom(this.state.roomNumber);
+            this.state.socket.emit('join room', {roomId: this.state.roomNumber, user: this.props.user} );            
         };
     }
 
@@ -45,13 +46,16 @@ export default class Home extends React.Component {
             Don't change to board page until the backend emits back to the frontend confirming the room was joined
          */
         if(this.state.nickname != ""){
-            this.state.socket.emit('create room');
+            //this.props.setRoom(this.state.roomNumber);
+            this.state.socket.emit('create room', this.props.user);
         } else {
             console.error("Please set nickname");
         }
 
         this.state.socket.on('room joined', (roomNum) => {
-            console.log('created room successfully', roomNum)
+            console.log('created room successfully', roomNum);
+            
+            // FIXME: it is probably better to set the room here, so that we now that the user joined the room successfully
             this.props.setRoom(roomNum);
             this.setState({
                 roomJoined: true

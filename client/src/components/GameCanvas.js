@@ -33,8 +33,6 @@ export default class GameCanvas extends React.Component {
 
     componentDidMount() {
 
-        // get room via user?
-
         this.state.socket.on('connection', (socket) => {
             console.log('connected')
             

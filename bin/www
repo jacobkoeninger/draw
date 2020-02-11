@@ -34,46 +34,70 @@ var io = require('socket.io')(server);
   User:
   id, nickname, room(id?)
 */
-let users = [];
-let ids = [];
+
+/* 
+TODO:
+- Store rooms in the rooms array when rooms are created (also delete rooms when all of the users left or the game has ended)
+- On disconnect, check the room to see if it empty.
+- Allow users to name their rooms 
+- Allow users to add passwords to their rooms 
+- Store user objects in the users array (remove user on disconnect)
+*/
+
+let onlineUsers = [];
 let rooms = [];
+
+function updateOnlineUsers(user){
+  let userFound = null;
+  console.log(onlineUsers);
+  onlineUsers.forEach((onlineUser, index) => {
+    if(typeof onlineUser != "undefined"){
+      if(onlineUser.id === user.id){
+        onlineUsers[index] = user;
+        userFound = true;
+        console.log('Updated user: ' + user.nickname);
+      }
+    } else {
+      console.log('User iterated is undefined');
+    }
+  });
+  if (!userFound) onlineUsers.push(user);
+}
 
 io.on('connection', function(socket){
 
-  socket.on('join room', (roomId) => {
-    socket.join(roomId);
-    console.log(socket.id + " joined room " + roomId)
-    socket.emit('room joined', roomId);
+  socket.on('join room', (obj) => {
+    socket.join(obj.roomId);
+    console.log(socket.id + " joined room " + obj.roomId)
+    socket.emit('room joined', obj.roomId);
+
+    // TODO: loop through users, if user is not found, then add user
+    // If user is found, then update room on user to obj.roomId
+    // Do this one create room as well
+    
+    //FIXME:
+    //updateOnlineUsers(obj.user);
+    console.log('online users:', onlineUsers);
   });
 
   /* Maybe give room id on socket emit room joined */
 
-  socket.on('create room', () => {
-    const rnd = Math.floor(Math.random() * 10000);
+  socket.on('create room', (user) => {
+    const roomId = Math.floor(Math.random() * 10000);
     rooms.push({
-      id: rnd,
+      id: roomId,
       players: []
     });
-    socket.join(rnd);
-    console.log(socket.id + " has joined room " + rnd)
-    socket.emit('room joined', rnd);
+    socket.join(roomId);
+    console.log(socket.id + " has joined room " + roomId)
+    socket.emit('room joined', roomId);
+    
+    //FIXME:
+    //updateOnlineUsers(user);
   });
 
   socket.on('send-nickname', (nickname) => {
-
-    if(users.indexOf(nickname) == -1){      
-        socket.nickname = nickname;
-        users.push(socket.nickname);
-    } else {
-      // emit something to the user that this name is taken
-    }
-
-    if(ids.includes(socket.id) == -1){
-      ids.push(socket.id);
-    }
-
-    console.log('users', users);
-  
+    socket.nickname = nickname;  
   });
 
   console.log('a user connected');
@@ -86,6 +110,7 @@ io.on('connection', function(socket){
     });
   });
 });
+
 
 /**
  * Listen on provided port, on all network interfaces.
