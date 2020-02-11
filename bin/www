@@ -89,7 +89,7 @@ io.on('connection', function(socket){
       players: []
     });
     socket.join(roomId);
-    console.log(socket.id + " has joined room " + roomId)
+    console.log(socket.id + " has joined room " + roomId);
     socket.emit('room joined', roomId);
     
     //FIXME:
@@ -101,13 +101,15 @@ io.on('connection', function(socket){
   });
 
   console.log('a user connected');
-  socket.on('canvasUpdate', (obj) => {
-    console.log(obj);
-    
-    io.emit('updateAllCanvases', {
-      id: obj.id,
+  socket.on('updateCanvas', (obj) => {
+    console.log(obj.room);
+    socket.to(obj.room).emit('updateAllCanvases', {
       data: obj.data
     });
+    /* io.emit('updateAllCanvases', {
+      id: obj.id,
+      data: obj.data
+    }); */
   });
 });
 

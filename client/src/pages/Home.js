@@ -16,11 +16,11 @@ export default class Home extends React.Component {
             nickname: "",
             roomNumber: "",
             roomJoined: false
-        }
+        };
+        this.joinRoomSocket();
     }
 
     setNickname = () => {
-        //TODO: check if name is taken
         if(this.state.nickname != ""){
             this.state.socket.emit('send-nickname', this.state.nickname)
             this.props.setNickname(this.state.nickname);
@@ -28,7 +28,6 @@ export default class Home extends React.Component {
     }
     
     joinRoom = () => {
-        // make sure nickname is set
         if(this.state.nickname != "" && this.state.roomNumber != "") {
             //this.props.setRoom(this.state.roomNumber);
             this.state.socket.emit('join room', {roomId: this.state.roomNumber, user: this.props.user} );            
@@ -52,6 +51,11 @@ export default class Home extends React.Component {
             console.error("Please set nickname");
         }
 
+             
+
+    }
+
+    joinRoomSocket = _ => {
         this.state.socket.on('room joined', (roomNum) => {
             console.log('created room successfully', roomNum);
             
@@ -60,8 +64,7 @@ export default class Home extends React.Component {
             this.setState({
                 roomJoined: true
             });
-        });        
-
+        });   
     }
 
 

@@ -38,7 +38,7 @@ export default class Board extends React.Component {
                     <button onClick={this.setNickname}>Set</button> */}
                 </div>
                 <br />
-                <GameCanvas socket={this.state.socket} />
+                <GameCanvas socket={this.state.socket} user={this.props.user} />
             </div>
         );
     }

@@ -53,18 +53,18 @@ export default class GameCanvas extends React.Component {
 
     canvasUpdate = (data) => {
         //console.log('Canvas', data.getSaveData());
-        this.state.socket.emit('canvasUpdate', {
-            'id': this.state.socket.id,
-            'data': data.getSaveData()
+        this.state.socket.emit('updateCanvas', {
+            'data': data.getSaveData(),
+            'room': this.props.user.room
         });        
     }
 
     render() {
 
         this.state.socket.on('updateAllCanvases', (obj) => {
-            /* if(obj.id != this.state.socket.id){
+            //if(obj.id != this.state.socket.id){
                 this.saveableCanvas.loadSaveData(obj.data);
-            } */
+            //} 
             console.log('my id', this.state.socket.id);
             console.log('artist id', obj.id);
         })
@@ -77,12 +77,14 @@ export default class GameCanvas extends React.Component {
             <CanvasDraw
                 ref={canvasDraw => (this.saveableCanvas = canvasDraw)}
                 onChange={(canvasDraw) => this.canvasUpdate(canvasDraw)}
+                loadTimeOffset = {0}
             />
             <button onClick={() => {
                 this.saveableCanvas.undo();
             }}>Undo</button>
             <button onClick={() => {
                 this.saveableCanvas.clear();
+                //FIXME: this doesn't update canvas
             }}>Clear</button>
             <button onClick={() => {
                 console.log(this.state.socket)

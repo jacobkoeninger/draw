@@ -21,7 +21,7 @@ let user = {
     room: null,
     nickname: "",
     id: socket.id
-}
+};
 
 const setNickname = (nick) => user.nickname = nick;
 const setRoom = (num) => user.room = num;
