@@ -35,7 +35,7 @@ export default class GameChat extends React.Component {
     }
 
     componentDidUpdate = () => {
-        console.log('chat updated')
+
     }
 
     
@@ -49,7 +49,7 @@ export default class GameChat extends React.Component {
                 avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
                 content: (
                     <p>
-                    { obj.message }
+                        { obj.message }
                     </p>
                 ),
                 datetime: (
@@ -81,6 +81,7 @@ export default class GameChat extends React.Component {
 
         return (
             <div className="chat">
+                <h4>{ this.props.user.nickname }</h4>
                 <Input
                     placeholder="Chat..."
                     style={{ width: '80%' }}

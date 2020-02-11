@@ -5,9 +5,10 @@ import {Redirect} from "react-router-dom";
 import {
     Button,
     Row,
-    Col
+    Col,
 } from 'antd';
 import GameChat  from '../components/GameChat';
+import UserList from '../components/UserList';
 export default class Board extends React.Component {
     /* 
     TODO:
@@ -22,7 +23,15 @@ export default class Board extends React.Component {
         this.state = {
             socket: props.socket,
             kickUser: false,
-            game: null
+            game: null,
+        }
+    }
+
+    showUsers = () => {
+        if(this.state.game) {
+            return <UserList users={this.state.game.players} />
+        } else {
+            return <p>Loading...</p>;
         }
     }
 
@@ -35,7 +44,7 @@ export default class Board extends React.Component {
             // get info to find out if User is host. if host, then show play button. 
             // on play button click, emit (include user in emit?)
             this.setState({
-                game: game
+                game: game                
             });
             console.log(game);
         });
@@ -47,7 +56,7 @@ export default class Board extends React.Component {
 
     startGame = () => {
         console.log('start game');
-        this.state.socket.emit('start game');
+        this.state.socket.emit('start game', this.state.game);
     }
 
     showStartButton = () => {
@@ -70,25 +79,23 @@ export default class Board extends React.Component {
             <div>
                 <Row>
                     Board - {this.props.user.room}
-                    <br />
-                    Nickname - {this.props.user.nickname}
-                    <br />
-                    <div>
-                        { this.showPlayers() }
-                    </div>
                     <div>
                         { this.showStartButton() }
-                    </div>                
+                    </div>
+                    <br />
                 </Row>
                 <Row>
                 
                 </Row>
                 <Row>
-                    <Col span={18} >
+                    <Col span={15} >
                         <GameCanvas socket={this.state.socket} user={this.props.user} />
                     </Col>
                     <Col span={6} >
                         <GameChat socket={this.state.socket} user={this.props.user} game={this.state.game} />
+                    </Col>
+                    <Col span={3} >
+                        { this.showUsers() }
                     </Col>
                 </Row>                
             </div>

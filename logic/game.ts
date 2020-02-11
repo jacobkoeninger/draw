@@ -8,7 +8,7 @@ interface User {
     id: string;
 };
 
-class Game {
+export class Game {
     
     /* 
         TODO:
@@ -18,21 +18,21 @@ class Game {
         - handle users trying to connect mid game (maybe make this an option the host can set to allow)
     */
 
-    host: User; // user obj
-    room: string;
-    status: string;
-    round_length: number; // in seconds
-    max_rounds: number;
-    max_players: number;
-    players: Array<User>;
-    words: Array<string>;
-    words_used: Array<string>;
+    public host: User; // user obj
+    public room: string;
+    public status: string;
+    public round_length: number; // in seconds
+    public max_rounds: number;
+    public max_players: number;
+    public players: Array<User>;
+    public words: Array<string>;
+    public words_used: Array<string>;
     
-    current_round: number;
-    current_artist: User;
-    current_word: string;
+    public current_round: number;
+    public current_artist: User;
+    public current_word: string;
 
-    player_turns: Array<User>;
+    public player_turns: Array<User>;
 
     constructor(host: User, room: string, words: Array<string>, max_rounds: number){
         this.status = "lobby";
@@ -46,22 +46,26 @@ class Game {
         this.words_used = [];
         this.max_rounds = max_rounds;
         this.current_round = -1;
+        this.lobby();
     }
     
     lobby() {
+        console.log('lobby created');
         /* 
             TODO:
-            - start get when host clicks start button
+            - start game when host clicks start button
         */
     }
 
-    startGame() {
+    public startGame() {
+        console.log('Starting game')
         /* 
             TODO:
             - set player_turns (randomize all of the game's players into the array)
             - set status to active
             - run start round
         */
+        
     }
 
     startRound() {
@@ -137,7 +141,7 @@ export default function SiteLogic(server) {
                 players: []
             });
             //console.log('??: ' + roomId);
-            const NEW_GAME = new Game(user, roomId.toString(), [], 10);
+            const NEW_GAME = new Game(user, roomId.toString(), ["word", "word 2", "word 3"], 10);
             games.push(NEW_GAME); //? host, room, words, max_rounds
             //console.log(games);
             socket.join(NEW_GAME.room);
@@ -208,8 +212,17 @@ export default function SiteLogic(server) {
     }
 
     const startGameSocket = (socket) => {
-        socket.on('start game', () => {
+        socket.on('start game', (game: Game) => {
+            
             console.log(socket.id + ' is trying to start their game');
+            
+            if(socketInGame(socket, game)){
+                /* console.log(game); */
+                game.startGame();
+            } else {
+
+            }
+            
         });
     }
 
@@ -222,7 +235,7 @@ export default function SiteLogic(server) {
         });
     }
 
-    const handleDisconnect = (socketId) => {
+    const handleDisconnect = (socketId: string) => {
     /* 
     TODO:
     - Loop through games and remove user from them
@@ -237,6 +250,14 @@ export default function SiteLogic(server) {
             io.in(game.room).emit('game info', game);
         });
     };
+
+    function socketInGame(socket: any, game: Game){
+        let userFound = null;
+        game.players.forEach((player) => {
+            if(player.id == socket.id) userFound = player;
+        })
+        return userFound;
+    }
 
     function findGame(roomId: string){
         let gameFound = null;

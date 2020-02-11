@@ -16,14 +16,17 @@ var Game = /** @class */ (function () {
         this.words_used = [];
         this.max_rounds = max_rounds;
         this.current_round = -1;
+        this.lobby();
     }
     Game.prototype.lobby = function () {
+        console.log('lobby created');
         /*
             TODO:
-            - start get when host clicks start button
+            - start game when host clicks start button
         */
     };
     Game.prototype.startGame = function () {
+        console.log('Starting game');
         /*
             TODO:
             - set player_turns (randomize all of the game's players into the array)
@@ -82,6 +85,7 @@ var Game = /** @class */ (function () {
     };
     return Game;
 }());
+exports.Game = Game;
 function SiteLogic(server) {
     io = require('socket.io')(server);
     var onlineUsers = [];
@@ -94,7 +98,7 @@ function SiteLogic(server) {
                 players: []
             });
             //console.log('??: ' + roomId);
-            var NEW_GAME = new Game(user, roomId.toString(), [], 10);
+            var NEW_GAME = new Game(user, roomId.toString(), ["word", "word 2", "word 3"], 10);
             games.push(NEW_GAME); //? host, room, words, max_rounds
             //console.log(games);
             socket.join(NEW_GAME.room);
@@ -156,8 +160,14 @@ function SiteLogic(server) {
         });
     };
     var startGameSocket = function (socket) {
-        socket.on('start game', function () {
+        socket.on('start game', function (game) {
             console.log(socket.id + ' is trying to start their game');
+            if (socketInGame(socket, game)) {
+                /* console.log(game); */
+                game.startGame();
+            }
+            else {
+            }
         });
     };
     var chatMessageSocket = function (socket) {
@@ -183,6 +193,14 @@ function SiteLogic(server) {
             io["in"](game.room).emit('game info', game);
         });
     };
+    function socketInGame(socket, game) {
+        var userFound = null;
+        game.players.forEach(function (player) {
+            if (player.id == socket.id)
+                userFound = player;
+        });
+        return userFound;
+    }
     function findGame(roomId) {
         var gameFound = null;
         games.forEach(function (game) {
