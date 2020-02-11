@@ -11,4 +11,6 @@
 }
 .chat {
   margin:2% 0;
+  height:60vh;
+  overflow-y: scroll;
 }

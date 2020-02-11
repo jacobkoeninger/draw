@@ -84,8 +84,8 @@ export default class GameCanvas extends React.Component {
                         canvas: this.saveableCanvas
                     });
                 }}                
-                canvasWidth = {800}
-                canvasHeight = {400}
+                canvasWidth = {1000}
+                canvasHeight = {500}
                 loadTimeOffset = {5}
             />
             <Button type="ghost" onClick={() => {

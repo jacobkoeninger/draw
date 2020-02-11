@@ -3,7 +3,9 @@ import GameCanvas from '../components/GameCanvas';
 import io, { Socket } from 'socket.io-client';
 import {Redirect} from "react-router-dom";
 import {
-    Button
+    Button,
+    Row,
+    Col
 } from 'antd';
 import GameChat  from '../components/GameChat';
 export default class Board extends React.Component {
@@ -66,24 +68,29 @@ export default class Board extends React.Component {
         if(this.state.kickUser) return <Redirect to={"/"} />;
         return (
             <div>
-                Board - {this.props.user.room}
-                <br />
-                Nickname - {this.props.user.nickname}
-                <br />
-                <div>
-                    { this.showPlayers() }
-                </div>
-                <div>
-                    { this.showStartButton() }
-                </div>
+                <Row>
+                    Board - {this.props.user.room}
+                    <br />
+                    Nickname - {this.props.user.nickname}
+                    <br />
+                    <div>
+                        { this.showPlayers() }
+                    </div>
+                    <div>
+                        { this.showStartButton() }
+                    </div>                
+                </Row>
+                <Row>
                 
-                <div>
-                    {/* <input onChange={(e) => this.setState({nickname: e.target.value})} placeholder="Nickname" />
-                    <button onClick={this.setNickname}>Set</button> */}
-                </div>
-                <br />
-                <GameCanvas socket={this.state.socket} user={this.props.user} />
-                <GameChat socket={this.state.socket} user={this.props.user} game={this.state.game} />
+                </Row>
+                <Row>
+                    <Col span={18} >
+                        <GameCanvas socket={this.state.socket} user={this.props.user} />
+                    </Col>
+                    <Col span={6} >
+                        <GameChat socket={this.state.socket} user={this.props.user} game={this.state.game} />
+                    </Col>
+                </Row>                
             </div>
         );
     }

@@ -43,8 +43,6 @@ export default class GameChat extends React.Component {
     receiveMessageSocket = () => {
         this.state.socket.on('receive message', (obj) => {
             
-            console.log(obj.message);
-            
             let newData = this.state.data;
             newData.unshift({
                 author: obj.nickname,
@@ -71,7 +69,6 @@ export default class GameChat extends React.Component {
             this.setState({
                 data: newData
             })
-            console.log(this.state.data)
         });
     }
 
@@ -86,14 +83,14 @@ export default class GameChat extends React.Component {
             <div className="chat">
                 <Input
                     placeholder="Chat..."
-                    style={{ width: '40%' }}
+                    style={{ width: '80%' }}
                     onChange={(e) => this.setState({
                         message: e.target.value
                     })}
                 />
                 <Button
                     type="primary"
-                    style={{ width: '5%', margin: '0 0 0 0.5%' }}
+                    style={{ width: '17.5%', margin: '0 0 0 0.5%' }}
                     onClick={this.sendMessage}
                 > Send </Button>
                 
