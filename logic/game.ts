@@ -33,7 +33,7 @@ class Game {
 
     player_turns: Array<User>;
 
-    constructor(host, room, words, max_rounds){
+    constructor(host: User, room: string, words: Array<string>, max_rounds: number){
         this.host = host;
         this.room = room;
         this.round_length = 60;
@@ -133,12 +133,13 @@ export default function SiteLogic(server) {
                 id: roomId,
                 players: []
             });
-            console.log('??: ' + roomId);
-            games.push(new Game(user, roomId, ["a", "b", "c"], 10)); //? host, room, words, max_rounds
-            console.log(games);
-            socket.join(roomId);
-            console.log(socket.id + " has joined room " + roomId);
-            socket.emit('room joined', roomId);
+            //console.log('??: ' + roomId);
+            const NEW_GAME = new Game(user, roomId.toString(), ["a", "b", "c"], 10);
+            games.push(NEW_GAME); //? host, room, words, max_rounds
+            //console.log(games);
+            socket.join(NEW_GAME.room);
+            console.log(socket.id + " has joined room " + NEW_GAME.room);
+            socket.emit('game joined', NEW_GAME);
             
             //FIXME:
             //updateOnlineUsers(user);
@@ -146,21 +147,19 @@ export default function SiteLogic(server) {
     }
 
     const joinGameSocket = (socket) => {
-        socket.on('join room', (obj) => {
-            let roomFound = false;
-            games.forEach((game) => {
-                if(game.room == obj.roomId){
-                    roomFound = true;
-                    socket.join(obj.roomId);
-                    console.log(socket.id + " joined room " + obj.roomId)
-                    socket.emit('room joined', obj.roomId);
-                }
-            });
+        socket.on('join game', (obj) => {
+            
+            const gameFound = findGame(obj.roomId);
 
-            if(!roomFound){
+            if(!gameFound){
                 console.log('room not found', obj.roomId);
-                socket.emit('room joined', null);
-            }    
+                socket.emit('game joined', null);
+            } else {
+                socket.join(gameFound.room);
+                gameFound.players.push(obj.user);
+                console.log(socket.id + " joined room " + gameFound.room)
+                socket.emit('game joined', gameFound);
+            }
 
             // TODO: loop through users, if user is not found, then add user
             // If user is found, then update room on user to obj.roomId
@@ -172,7 +171,7 @@ export default function SiteLogic(server) {
     }
 
     const updateNicknameSocket = (socket) => {
-        socket.on('send-nickname', (nickname) => {
+        socket.on('send-nickname', (nickname: string) => {
             socket.nickname = nickname;  
         });
     }
@@ -193,17 +192,19 @@ export default function SiteLogic(server) {
     }
 
     const getLobbyInfoSocket = (socket) => {
-        socket.on('joined lobby', (roomId) => {
+        socket.on('joined lobby', (roomId: string) => {
             
-            let lobby = findGame(roomId);
-            console.log('lobby found', lobby);
-            if(lobby) {                
-                socket.emit('lobby info', lobby);
+            const GAME_FOUND = findGame(roomId);
+            console.log('Searching for game with ID: ' + roomId);
+            console.log('lobby found', GAME_FOUND);
+            if(GAME_FOUND) {
+                io.in(roomId).emit('lobby info', GAME_FOUND); //?
+                //socket.emit('lobby info', lobby);
             }
         });
     }
 
-    function findGame(roomId){
+    function findGame(roomId: string){
         let gameFound = null;
         games.forEach((game) => {
             if(game.room === roomId) gameFound = game;
@@ -211,7 +212,7 @@ export default function SiteLogic(server) {
         return gameFound;
     }
 
-    function updateOnlineUsers(user){
+    function updateOnlineUsers(user: User){
         let userFound = null;
         console.log(onlineUsers);
         onlineUsers.forEach((onlineUser, index) => {

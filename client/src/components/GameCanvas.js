@@ -1,6 +1,9 @@
 import React from 'react';
 import CanvasDraw from "react-canvas-draw";
 import io from 'socket.io-client';
+import {
+    Button
+} from 'antd';
 
 export default class GameCanvas extends React.Component {
 
@@ -85,19 +88,19 @@ export default class GameCanvas extends React.Component {
                 canvasHeight = {400}
                 loadTimeOffset = {5}
             />
-            <button onClick={() => {
+            <Button type="ghost" onClick={() => {
                 this.saveableCanvas.undo();
                 this.setState({
                     canvas: this.saveableCanvas
                 });
-            }}>Undo</button>
-            <button onClick={() => {
+            }}>Undo</Button>
+            <Button type="ghost" onClick={() => {
                 this.saveableCanvas.clear();
                 //FIXME: this doesn't update canvas
-            }}>Clear</button>
-            <button onClick={() => {
+            }}>Clear</Button>
+            <Button type="ghost" onClick={() => {
                 console.log(this.state.socket)
-            }}>Log data</button>
+            }}>Log data</Button>
           </div>
         )
     }

@@ -91,30 +91,29 @@ function SiteLogic(server) {
                 id: roomId,
                 players: []
             });
-            console.log('??: ' + roomId);
-            games.push(new Game(user, roomId, ["a", "b", "c"], 10)); //? host, room, words, max_rounds
-            console.log(games);
-            socket.join(roomId);
-            console.log(socket.id + " has joined room " + roomId);
-            socket.emit('room joined', roomId);
+            //console.log('??: ' + roomId);
+            var NEW_GAME = new Game(user, roomId.toString(), ["a", "b", "c"], 10);
+            games.push(NEW_GAME); //? host, room, words, max_rounds
+            //console.log(games);
+            socket.join(NEW_GAME.room);
+            console.log(socket.id + " has joined room " + NEW_GAME.room);
+            socket.emit('game joined', NEW_GAME);
             //FIXME:
             //updateOnlineUsers(user);
         });
     };
     var joinGameSocket = function (socket) {
-        socket.on('join room', function (obj) {
-            var roomFound = false;
-            games.forEach(function (game) {
-                if (game.room == obj.roomId) {
-                    roomFound = true;
-                    socket.join(obj.roomId);
-                    console.log(socket.id + " joined room " + obj.roomId);
-                    socket.emit('room joined', obj.roomId);
-                }
-            });
-            if (!roomFound) {
+        socket.on('join game', function (obj) {
+            var gameFound = findGame(obj.roomId);
+            if (!gameFound) {
                 console.log('room not found', obj.roomId);
-                socket.emit('room joined', null);
+                socket.emit('game joined', null);
+            }
+            else {
+                socket.join(gameFound.room);
+                gameFound.players.push(obj.user);
+                console.log(socket.id + " joined room " + gameFound.room);
+                socket.emit('game joined', gameFound);
             }
             // TODO: loop through users, if user is not found, then add user
             // If user is found, then update room on user to obj.roomId
@@ -144,10 +143,12 @@ function SiteLogic(server) {
     };
     var getLobbyInfoSocket = function (socket) {
         socket.on('joined lobby', function (roomId) {
-            var lobby = findGame(roomId);
-            console.log('lobby found', lobby);
-            if (lobby) {
-                socket.emit('lobby info', lobby);
+            var GAME_FOUND = findGame(roomId);
+            console.log('Searching for game with ID: ' + roomId);
+            console.log('lobby found', GAME_FOUND);
+            if (GAME_FOUND) {
+                io["in"](roomId).emit('lobby info', GAME_FOUND); //?
+                //socket.emit('lobby info', lobby);
             }
         });
     };

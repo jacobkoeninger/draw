@@ -35,7 +35,7 @@ export default class Home extends React.Component {
     joinRoom = () => {
         if(this.state.nickname != "" && this.state.roomNumber != "") {
             //this.props.setRoom(this.state.roomNumber);
-            this.state.socket.emit('join room', {roomId: this.state.roomNumber, user: this.props.user} );
+            this.state.socket.emit('join game', {roomId: this.state.roomNumber, user: this.props.user} );
         };
     }
 
@@ -62,13 +62,12 @@ export default class Home extends React.Component {
     }
 
     joinRoomSocket = _ => {
-        this.state.socket.on('room joined', (roomNum) => {
-
-            if(roomNum !== null) {
-                console.log('created room successfully', roomNum);
+        this.state.socket.on('game joined', (GAME) => {
+            if(GAME != null) {
+                console.log('game joined successfully', GAME.room);
                 
                 // FIXME: it is probably better to set the room here, so that we now that the user joined the room successfully
-                this.props.setRoom(roomNum);
+                this.props.setRoom(GAME.room);
                 this.setState({
                     roomJoined: true
                 });
