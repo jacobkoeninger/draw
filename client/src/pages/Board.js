@@ -58,7 +58,7 @@ export default class Board extends React.Component {
             let playerNicknames = players.map((player) => {
                 return player.nickname;
             });
-            console.log('nicks', playerNicknames);
+            return playerNicknames.toString(", ");
         }
     }
 
