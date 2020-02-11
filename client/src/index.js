@@ -17,6 +17,15 @@ import {
 
 let socket = io(`http://localhost:3001`)
 
+let user = {
+    room: null,
+    nickname: "",
+    id: socket.id
+}
+
+const setNickname = (nick) => user.nickname = nick;
+const setRoom = (num) => user.room = num;
+
 ReactDOM.render((
     
     <Router>
@@ -43,10 +52,10 @@ ReactDOM.render((
       <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
         <Switch>            
             <Route path="/board">
-                <Board socket={socket} />
+                <Board socket={socket} user={user} />
             </Route>
             <Route path="/">
-                <Home socket={socket} />
+                <Home socket={socket} setNickname={setNickname} setRoom={setRoom} />
             </Route>
         </Switch>
       </div>

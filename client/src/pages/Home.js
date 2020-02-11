@@ -21,13 +21,16 @@ export default class Home extends React.Component {
 
     setNickname = () => {
         //TODO: check if name is taken
-        if(this.state.nickname != "") this.state.socket.emit('send-nickname', this.state.nickname);
+        if(this.state.nickname != ""){
+            this.state.socket.emit('send-nickname', this.state.nickname)
+            this.props.setNickname(this.state.nickname);
+        };
     }
     
     joinRoom = () => {
         // make sure nickname is set
         if(this.state.nickname != "" && this.state.roomNumber != "") {
-            this.state.socket.emit('join room', this.state.roomNumber)
+            this.state.socket.emit('join room', this.state.roomNumber);            
         };
     }
 
@@ -47,8 +50,9 @@ export default class Home extends React.Component {
             console.error("Please set nickname");
         }
 
-        this.state.socket.on('room joined', () => {
-            console.log('created room successfully')
+        this.state.socket.on('room joined', (roomNum) => {
+            console.log('created room successfully', roomNum)
+            this.props.setRoom(roomNum);
             this.setState({
                 roomJoined: true
             });
