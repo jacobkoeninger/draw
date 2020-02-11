@@ -1,7 +1,78 @@
 "use strict";
 exports.__esModule = true;
-function Game(server) {
-    var io = require('socket.io')(server);
+var io;
+;
+var Game = /** @class */ (function () {
+    function Game(host, room, words, max_rounds) {
+        this.host = host;
+        this.round_length = 60;
+        this.max_players = 2;
+        this.players = [];
+        this.players.push(host);
+        this.words = words;
+        this.words_used = [];
+        this.max_rounds = max_rounds;
+    }
+    Game.prototype.startGame = function () {
+        /*
+            TODO:
+            - set player_turns (randomize all of the game's players into the array)
+            - run start round
+        */
+    };
+    Game.prototype.startRound = function () {
+        /*
+            TODO:
+            - clear board
+            - update current round
+            - update artist (if round == 0 then choose a random player. else: go to next User in this.player_turns)
+            - update current word
+        */
+    };
+    Game.prototype.endRound = function () {
+        /*
+            TODO:
+            - give points to users
+            - start new round
+        */
+    };
+    Game.prototype.updateCurrentRound = function () {
+        /*
+            TODO:
+            - if this.current_round + 1 > max_round, then end the game. else: increase the current_round by one
+        */
+    };
+    Game.prototype.clearBoards = function () {
+        /*
+            TODO:
+            - clear the boards of each player in this room
+        */
+    };
+    Game.prototype.updateWord = function () {
+        /*
+            TODO:
+            - choose a random word from this.words, make sure it hasn't be chosen before (not in this.used_words)
+        */
+    };
+    Game.prototype.updateArtist = function () {
+        /*
+            TODO:
+            - decide who the new artist is (if round == 0 then choose a random player. else: go to next User in this.player_turns)
+            - only allow artist to be able to draw
+            - artist no longer can type in chat
+        */
+    };
+    Game.prototype.endGame = function () {
+        /*
+            TODO:
+            - show results
+            - maybe redirect all users to Home
+        */
+    };
+    return Game;
+}());
+function GameLogic(server) {
+    io = require('socket.io')(server);
     var onlineUsers = [];
     var rooms = [];
     function updateOnlineUsers(user) {
@@ -65,5 +136,5 @@ function Game(server) {
         });
     });
 }
-exports["default"] = Game;
-module.exports.Game = Game;
+exports["default"] = GameLogic;
+module.exports.Game = GameLogic;

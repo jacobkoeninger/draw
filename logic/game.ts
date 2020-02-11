@@ -1,7 +1,117 @@
-export default function Game(server) {
+var io;
 
-    var io = require('socket.io')(server);
+interface User {
+    room: string;
+    nickname: string;
+    id: string;
+};
+
+class Game {
     
+    /* 
+        TODO:
+        - make sure all user's rooms are updated to this.room
+        - make sure to store this game in an array somewhere
+        - handle disconnecting
+        - handle users trying to connect mid game (maybe make this an option the host can set to allow)
+    */
+
+    host: User; // user obj
+    room: string;
+    round_length: number; // in seconds
+    max_rounds: number;
+    max_players: number;
+    players: Array<User>;
+    words: Array<string>;
+    words_used: Array<string>;
+    
+    current_round: number;
+    current_artist: User;
+    current_word: string;
+
+    player_turns: Array<User>;
+
+    constructor(host, room, words, max_rounds){
+        this.host = host;
+        this.round_length = 60;
+        this.max_players = 2;
+        this.players = [];
+        this.players.push(host);
+        this.words = words;
+        this.words_used = [];
+        this.max_rounds = max_rounds;
+    }
+    
+    startGame() {
+        /* 
+            TODO:
+            - set player_turns (randomize all of the game's players into the array)
+            - run start round
+        */
+    }
+
+    startRound() {
+        /* 
+            TODO:
+            - clear board
+            - update current round
+            - update artist (if round == 0 then choose a random player. else: go to next User in this.player_turns)
+            - update current word
+        */
+    }
+
+    endRound() {
+        /* 
+            TODO:
+            - give points to users
+            - start new round
+        */
+    }
+
+    updateCurrentRound() {
+        /* 
+            TODO:
+            - if this.current_round + 1 > max_round, then end the game. else: increase the current_round by one
+        */
+    }
+
+    clearBoards() {
+        /* 
+            TODO:
+            - clear the boards of each player in this room
+        */
+    }
+
+    updateWord() {
+        /* 
+            TODO:
+            - choose a random word from this.words, make sure it hasn't be chosen before (not in this.used_words)
+        */
+    }
+
+    updateArtist(){
+        /* 
+            TODO:
+            - decide who the new artist is (if round == 0 then choose a random player. else: go to next User in this.player_turns)
+            - only allow artist to be able to draw
+            - artist no longer can type in chat
+        */
+    }
+
+    endGame() {
+        /* 
+            TODO:
+            - show results
+            - maybe redirect all users to Home
+        */
+    }
+
+}
+
+export default function GameLogic(server) {
+
+    io = require('socket.io')(server);
+
     let onlineUsers = [];
     let rooms = [];
 
@@ -10,13 +120,13 @@ export default function Game(server) {
         console.log(onlineUsers);
         onlineUsers.forEach((onlineUser, index) => {
             if(typeof onlineUser != "undefined"){
-            if(onlineUser.id === user.id){
-                onlineUsers[index] = user;
-                userFound = true;
-                console.log('Updated user: ' + user.nickname);
-            }
+                if(onlineUser.id === user.id){
+                    onlineUsers[index] = user;
+                    userFound = true;
+                    console.log('Updated user: ' + user.nickname);
+                }
             } else {
-            console.log('User iterated is undefined');
+                console.log('User iterated is undefined');
             }
         });
         if (!userFound) onlineUsers.push(user);
@@ -76,4 +186,4 @@ export default function Game(server) {
     
 }
 
-module.exports.Game = Game;
+module.exports.Game = GameLogic;
