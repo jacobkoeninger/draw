@@ -158,6 +158,22 @@ function SiteLogic(server) {
             console.log(socket.id + ' is trying to start their game');
         });
     };
+    var handleDisconnect = function (socketId) {
+        /*
+        TODO:
+        - Loop through games and remove user from them
+        */
+        games.forEach(function (game) {
+            game.players = game.players.filter(function (player) {
+                if (player.id !== socketId) {
+                    return true;
+                }
+                return false;
+            });
+            io["in"](game.room).emit('lobby info', game);
+        });
+        //!
+    };
     function findGame(roomId) {
         var gameFound = null;
         games.forEach(function (game) {
@@ -186,6 +202,7 @@ function SiteLogic(server) {
     }
     io.on('connection', function (socket) {
         socket.emit('sendId', socket.id);
+        socket.on('disconnect', function (_) { return handleDisconnect(socket.id); });
         joinGameSocket(socket);
         createGameSocket(socket);
         updateNicknameSocket(socket);

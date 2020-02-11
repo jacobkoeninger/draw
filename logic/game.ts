@@ -1,3 +1,5 @@
+import { isNull } from "util";
+
 var io;
 
 let games: Array<Game> = [];
@@ -210,6 +212,24 @@ export default function SiteLogic(server) {
         });
     }
 
+    const handleDisconnect = (socketId) => {
+    /* 
+    TODO:
+    - Loop through games and remove user from them
+    */
+        games.forEach((game) => {
+            game.players = game.players.filter((player) => {
+                if(player.id !== socketId){
+                    return true;
+                }
+                return false;
+            });
+            io.in(game.room).emit('lobby info', game);
+        });
+        
+        //!
+    };
+
     function findGame(roomId: string){
         let gameFound = null;
         games.forEach((game) => {
@@ -239,6 +259,8 @@ export default function SiteLogic(server) {
         
         socket.emit('sendId', socket.id);
 
+        socket.on('disconnect', _ => handleDisconnect(socket.id));
+
         joinGameSocket(socket);
 
         createGameSocket(socket);
@@ -254,7 +276,6 @@ export default function SiteLogic(server) {
         startGameSocket(socket);
 
     });
-
     
 }
 
