@@ -11,71 +11,21 @@ import {
 export default class GameChat extends React.Component {
     
 
-    data = [
-        {
-          actions: [<span key="comment-list-reply-to-0">Reply to</span>],
-          author: 'Han Solo',
-          avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-          content: (
-            <p>
-              We supply a series of design principles, practical patterns and high quality design
-              resources (Sketch and Axure), to help people create their product prototypes beautifully and
-              efficiently.
-            </p>
-          ),
-          datetime: (
-            <Tooltip
-              title={moment()
-                .subtract(1, 'days')
-                .format('YYYY-MM-DD HH:mm:ss')}
-            >
-              <span>
-                {moment()
-                  .subtract(1, 'days')
-                  .fromNow()}
-              </span>
-            </Tooltip>
-          ),
-        },
-        {
-          actions: [<span key="comment-list-reply-to-0">Reply to</span>],
-          author: 'Han Solo',
-          avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-          content: (
-            <p>
-              We supply a series of design principles, practical patterns and high quality design
-              resources (Sketch and Axure), to help people create their product prototypes beautifully and
-              efficiently.
-            </p>
-          ),
-          datetime: (
-            <Tooltip
-              title={moment()
-                .subtract(2, 'days')
-                .format('YYYY-MM-DD HH:mm:ss')}
-            >
-              <span>
-                {moment()
-                  .subtract(2, 'days')
-                  .fromNow()}
-              </span>
-            </Tooltip>
-          ),
-        },
-    ];
+    
     
     constructor(props){
         super(props);
         this.state = {
             messsage: "",
             socket: props.socket,
-            game: props.game
+            game: props.game,
+            data: []
         }
         this.receiveMessageSocket();
     }
     
     componentDidMount() {
-        console.log('chat mounted')
+        
     }
 
     sendMessage = () => {
@@ -84,27 +34,19 @@ export default class GameChat extends React.Component {
         }));
     }
 
-    getMessages = () => {
-        return <List
-            className="comment-list"
-            header={`${this.data.length} replies`}
-            itemLayout="horizontal"
-            dataSource={this.data}
-            renderItem={item => (
-            <li>
-                <Comment
-                author={item.author}
-                content={item.content}
-                />
-            </li>
-            )}
-        />
-    }   
+    componentDidUpdate = () => {
+        console.log('chat updated')
+    }
+
+    
     
     receiveMessageSocket = () => {
         this.state.socket.on('receive message', (obj) => {
+            
             console.log(obj.message);
-            this.data.push({
+            
+            let newData = this.state.data;
+            newData.unshift({
                 author: obj.nickname,
                 avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
                 content: (
@@ -125,9 +67,11 @@ export default class GameChat extends React.Component {
                     </span>
                     </Tooltip>
                 ),
-                });
-
-                console.log(this.data)
+            });
+            this.setState({
+                data: newData
+            })
+            console.log(this.state.data)
         });
     }
 
@@ -152,7 +96,22 @@ export default class GameChat extends React.Component {
                     style={{ width: '5%', margin: '0 0 0 0.5%' }}
                     onClick={this.sendMessage}
                 > Send </Button>
-                { this.getMessages() }
+                
+                <List
+                    className="comment-list"
+                    header={`${this.state.data.length} replies`}
+                    itemLayout="horizontal"
+                    dataSource={(this.state.data)}
+                    renderItem={item => (
+                    <li>
+                        <Comment
+                        author={item.author}
+                        content={item.content}
+                        />
+                    </li>
+                    )}
+                />
+
             </div>
         );
     }
