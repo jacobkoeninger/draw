@@ -42,6 +42,13 @@ class Game {
         this.max_rounds = max_rounds;
     }
     
+    lobby() {
+        /* 
+            TODO:
+            - start get when host clicks start button
+        */
+    }
+
     startGame() {
         /* 
             TODO:
@@ -108,7 +115,7 @@ class Game {
 
 }
 
-export default function GameLogic(server) {
+export default function SiteLogic(server) {
 
     io = require('socket.io')(server);
 
@@ -186,4 +193,4 @@ export default function GameLogic(server) {
     
 }
 
-module.exports.Game = GameLogic;
+module.exports.Game = SiteLogic;

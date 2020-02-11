@@ -6,7 +6,10 @@ import {Redirect} from "react-router-dom";
 export default class Board extends React.Component {
     /* 
     TODO:
-    - Check if user has a room and a nickname. (if not, redirect to Home)
+    - Show players in room
+    - Add chat
+    - Add protection against users joining who shouldn't. ex: private games, invite only, etc
+    - Add start button for host only
     */
     constructor(props){
         super(props);

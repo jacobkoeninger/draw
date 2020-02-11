@@ -13,6 +13,12 @@ var Game = /** @class */ (function () {
         this.words_used = [];
         this.max_rounds = max_rounds;
     }
+    Game.prototype.lobby = function () {
+        /*
+            TODO:
+            - start get when host clicks start button
+        */
+    };
     Game.prototype.startGame = function () {
         /*
             TODO:
@@ -71,7 +77,7 @@ var Game = /** @class */ (function () {
     };
     return Game;
 }());
-function GameLogic(server) {
+function SiteLogic(server) {
     io = require('socket.io')(server);
     var onlineUsers = [];
     var rooms = [];
@@ -136,5 +142,5 @@ function GameLogic(server) {
         });
     });
 }
-exports["default"] = GameLogic;
-module.exports.Game = GameLogic;
+exports["default"] = SiteLogic;
+module.exports.Game = SiteLogic;
