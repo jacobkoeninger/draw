@@ -1,10 +1,12 @@
 "use strict";
 exports.__esModule = true;
 var io;
+var games = [];
 ;
 var Game = /** @class */ (function () {
     function Game(host, room, words, max_rounds) {
         this.host = host;
+        this.room = room;
         this.round_length = 60;
         this.max_players = 2;
         this.players = [];
@@ -12,6 +14,7 @@ var Game = /** @class */ (function () {
         this.words = words;
         this.words_used = [];
         this.max_rounds = max_rounds;
+        this.current_round = -1;
     }
     Game.prototype.lobby = function () {
         /*
@@ -88,6 +91,9 @@ function SiteLogic(server) {
                 id: roomId,
                 players: []
             });
+            console.log('??: ' + roomId);
+            games.push(new Game(user, roomId, ["a", "b", "c"], 10)); //? host, room, words, max_rounds
+            console.log(games);
             socket.join(roomId);
             console.log(socket.id + " has joined room " + roomId);
             socket.emit('room joined', roomId);
@@ -97,9 +103,19 @@ function SiteLogic(server) {
     };
     var joinGameSocket = function (socket) {
         socket.on('join room', function (obj) {
-            socket.join(obj.roomId);
-            console.log(socket.id + " joined room " + obj.roomId);
-            socket.emit('room joined', obj.roomId);
+            var roomFound = false;
+            games.forEach(function (game) {
+                if (game.room == obj.roomId) {
+                    roomFound = true;
+                    socket.join(obj.roomId);
+                    console.log(socket.id + " joined room " + obj.roomId);
+                    socket.emit('room joined', obj.roomId);
+                }
+            });
+            if (!roomFound) {
+                console.log('room not found', obj.roomId);
+                socket.emit('room joined', null);
+            }
             // TODO: loop through users, if user is not found, then add user
             // If user is found, then update room on user to obj.roomId
             // Do this one create room as well
@@ -126,6 +142,13 @@ function SiteLogic(server) {
             }); */
         });
     };
+    var getLobbyInfoSocket = function (socket) {
+        socket.on('joined lobby', function () {
+            socket.emit('lobby info', {
+                players: ["a", "b"]
+            });
+        });
+    };
     function updateOnlineUsers(user) {
         var userFound = null;
         console.log(onlineUsers);
@@ -150,6 +173,7 @@ function SiteLogic(server) {
         updateNicknameSocket(socket);
         console.log(socket.id + ' has connected');
         updateCanvasSocket(socket);
+        getLobbyInfoSocket(socket);
     });
 }
 exports["default"] = SiteLogic;

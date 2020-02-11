@@ -9,6 +9,11 @@ import {
 
 export default class Home extends React.Component {
 
+    /* 
+        TODO:
+        - only allow users to join a lobby that exists
+    */
+
     constructor(props){
         super(props);
         this.state = {
@@ -30,7 +35,7 @@ export default class Home extends React.Component {
     joinRoom = () => {
         if(this.state.nickname != "" && this.state.roomNumber != "") {
             //this.props.setRoom(this.state.roomNumber);
-            this.state.socket.emit('join room', {roomId: this.state.roomNumber, user: this.props.user} );            
+            this.state.socket.emit('join room', {roomId: this.state.roomNumber, user: this.props.user} );
         };
     }
 
@@ -46,7 +51,8 @@ export default class Home extends React.Component {
          */
         if(this.state.nickname != ""){
             //this.props.setRoom(this.state.roomNumber);
-            this.state.socket.emit('create room', this.props.user);
+            console.log('does this work', this.props.user);
+            this.state.socket.emit('create room', this.props.user); //?
         } else {
             console.error("Please set nickname");
         }
@@ -57,13 +63,20 @@ export default class Home extends React.Component {
 
     joinRoomSocket = _ => {
         this.state.socket.on('room joined', (roomNum) => {
-            console.log('created room successfully', roomNum);
-            
-            // FIXME: it is probably better to set the room here, so that we now that the user joined the room successfully
-            this.props.setRoom(roomNum);
-            this.setState({
-                roomJoined: true
-            });
+
+            if(roomNum !== null) {
+                console.log('created room successfully', roomNum);
+                
+                // FIXME: it is probably better to set the room here, so that we now that the user joined the room successfully
+                this.props.setRoom(roomNum);
+                this.setState({
+                    roomJoined: true
+                });
+
+            } else {
+                console.error('Room not found');
+            }
+
         });   
     }
 

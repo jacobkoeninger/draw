@@ -1,5 +1,7 @@
 var io;
 
+let games: Array<Game> = [];
+
 interface User {
     room: string;
     nickname: string;
@@ -33,6 +35,7 @@ class Game {
 
     constructor(host, room, words, max_rounds){
         this.host = host;
+        this.room = room;
         this.round_length = 60;
         this.max_players = 2;
         this.players = [];
@@ -40,6 +43,7 @@ class Game {
         this.words = words;
         this.words_used = [];
         this.max_rounds = max_rounds;
+        this.current_round = -1;
     }
     
     lobby() {
@@ -126,9 +130,12 @@ export default function SiteLogic(server) {
         socket.on('create room', (user) => {
             const roomId = Math.floor(Math.random() * 10000);
             rooms.push({
-            id: roomId,
-            players: []
+                id: roomId,
+                players: []
             });
+            console.log('??: ' + roomId);
+            games.push(new Game(user, roomId, ["a", "b", "c"], 10)); //? host, room, words, max_rounds
+            console.log(games);
             socket.join(roomId);
             console.log(socket.id + " has joined room " + roomId);
             socket.emit('room joined', roomId);
@@ -140,9 +147,20 @@ export default function SiteLogic(server) {
 
     const joinGameSocket = (socket) => {
         socket.on('join room', (obj) => {
-            socket.join(obj.roomId);
-            console.log(socket.id + " joined room " + obj.roomId)
-            socket.emit('room joined', obj.roomId);
+            let roomFound = false;
+            games.forEach((game) => {
+                if(game.room == obj.roomId){
+                    roomFound = true;
+                    socket.join(obj.roomId);
+                    console.log(socket.id + " joined room " + obj.roomId)
+                    socket.emit('room joined', obj.roomId);
+                }
+            });
+
+            if(!roomFound){
+                console.log('room not found', obj.roomId);
+                socket.emit('room joined', null);
+            }    
 
             // TODO: loop through users, if user is not found, then add user
             // If user is found, then update room on user to obj.roomId
@@ -174,6 +192,14 @@ export default function SiteLogic(server) {
         });
     }
 
+    const getLobbyInfoSocket = (socket) => {
+        socket.on('joined lobby', () => {
+            socket.emit('lobby info', {
+                players: ["a", "b"]
+            });
+        });
+    }
+
     function updateOnlineUsers(user){
         let userFound = null;
         console.log(onlineUsers);
@@ -202,6 +228,8 @@ export default function SiteLogic(server) {
         console.log(socket.id + ' has connected');
 
         updateCanvasSocket(socket);
+
+        getLobbyInfoSocket(socket);
     });
 
     

@@ -2,7 +2,6 @@ import React from 'react';
 import CanvasDraw from "react-canvas-draw";
 import io from 'socket.io-client';
 
-
 export default class GameCanvas extends React.Component {
 
     /* 
@@ -81,7 +80,9 @@ export default class GameCanvas extends React.Component {
                     this.setState({
                         canvas: this.saveableCanvas
                     });
-                }}
+                }}                
+                canvasWidth = {800}
+                canvasHeight = {400}
                 loadTimeOffset = {5}
             />
             <button onClick={() => {

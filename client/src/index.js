@@ -55,7 +55,7 @@ ReactDOM.render((
                 <Board socket={socket} user={user} />
             </Route>
             <Route path="/">
-                <Home socket={socket} setNickname={setNickname} setRoom={setRoom} />
+                <Home socket={socket} setNickname={setNickname} setRoom={setRoom} user={user} />
             </Route>
         </Switch>
       </div>
