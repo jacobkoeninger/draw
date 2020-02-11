@@ -193,11 +193,22 @@ export default function SiteLogic(server) {
     }
 
     const getLobbyInfoSocket = (socket) => {
-        socket.on('joined lobby', () => {
-            socket.emit('lobby info', {
-                players: ["a", "b"]
-            });
+        socket.on('joined lobby', (roomId) => {
+            
+            let lobby = findGame(roomId);
+            console.log('lobby found', lobby);
+            if(lobby) {                
+                socket.emit('lobby info', lobby);
+            }
         });
+    }
+
+    function findGame(roomId){
+        let gameFound = null;
+        games.forEach((game) => {
+            if(game.room === roomId) gameFound = game;
+        });
+        return gameFound;
     }
 
     function updateOnlineUsers(user){

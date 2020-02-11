@@ -143,12 +143,22 @@ function SiteLogic(server) {
         });
     };
     var getLobbyInfoSocket = function (socket) {
-        socket.on('joined lobby', function () {
-            socket.emit('lobby info', {
-                players: ["a", "b"]
-            });
+        socket.on('joined lobby', function (roomId) {
+            var lobby = findGame(roomId);
+            console.log('lobby found', lobby);
+            if (lobby) {
+                socket.emit('lobby info', lobby);
+            }
         });
     };
+    function findGame(roomId) {
+        var gameFound = null;
+        games.forEach(function (game) {
+            if (game.room === roomId)
+                gameFound = game;
+        });
+        return gameFound;
+    }
     function updateOnlineUsers(user) {
         var userFound = null;
         console.log(onlineUsers);

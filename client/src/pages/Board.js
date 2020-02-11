@@ -25,10 +25,10 @@ export default class Board extends React.Component {
     componentDidMount = () => {
         // TODO: - Socket emit that they have joined the lobby (receive back whether they are host or not, and the current players in the game)    
         
-        this.state.socket.emit('joined lobby');
+        this.state.socket.emit('joined lobby', this.props.user.room);
 
         this.state.socket.on('lobby info', (info) => {
-            console.log('info', info);
+            console.log(info);
         });
 
         if(this.props.user.nickname == "" || this.props.user.room == null){
