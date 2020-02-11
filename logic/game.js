@@ -172,7 +172,6 @@ function SiteLogic(server) {
             });
             io["in"](game.room).emit('lobby info', game);
         });
-        //!
     };
     function findGame(roomId) {
         var gameFound = null;

@@ -1,5 +1,3 @@
-import { isNull } from "util";
-
 var io;
 
 let games: Array<Game> = [];
@@ -226,8 +224,6 @@ export default function SiteLogic(server) {
             });
             io.in(game.room).emit('lobby info', game);
         });
-        
-        //!
     };
 
     function findGame(roomId: string){

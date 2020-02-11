@@ -5,6 +5,7 @@ import {Redirect} from "react-router-dom";
 import {
     Button
 } from 'antd';
+import GameChat  from '../components/GameChat';
 export default class Board extends React.Component {
     /* 
     TODO:
@@ -83,6 +84,7 @@ export default class Board extends React.Component {
                 </div>
                 <br />
                 <GameCanvas socket={this.state.socket} user={this.props.user} />
+                <GameChat user={this.props.user} />
             </div>
         );
     }
