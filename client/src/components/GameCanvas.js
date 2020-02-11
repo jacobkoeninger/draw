@@ -5,6 +5,11 @@ import io from 'socket.io-client';
 
 export default class GameCanvas extends React.Component {
 
+    /* 
+        TODO:
+        - only allow drawing if user is both the artist and game has started
+    */
+
     
     constructor(props){
         super(props);
@@ -33,12 +38,9 @@ export default class GameCanvas extends React.Component {
 
     componentDidMount() {
 
-        this.state.socket.on('connection', (socket) => {
+        /* this.state.socket.on('connection', (socket) => {
             console.log('connected');
-            //socket.broadcast.emit('hi');
-            //socket.broadcast.emit('test');
-            //socket.emit('test');
-        });
+        }); */
     }
 
     componentDidUpdate = () => {

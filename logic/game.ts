@@ -122,6 +122,58 @@ export default function SiteLogic(server) {
     let onlineUsers = [];
     let rooms = [];
 
+    const createGameSocket = (socket) => {
+        socket.on('create room', (user) => {
+            const roomId = Math.floor(Math.random() * 10000);
+            rooms.push({
+            id: roomId,
+            players: []
+            });
+            socket.join(roomId);
+            console.log(socket.id + " has joined room " + roomId);
+            socket.emit('room joined', roomId);
+            
+            //FIXME:
+            //updateOnlineUsers(user);
+        });
+    }
+
+    const joinGameSocket = (socket) => {
+        socket.on('join room', (obj) => {
+            socket.join(obj.roomId);
+            console.log(socket.id + " joined room " + obj.roomId)
+            socket.emit('room joined', obj.roomId);
+
+            // TODO: loop through users, if user is not found, then add user
+            // If user is found, then update room on user to obj.roomId
+            // Do this one create room as well
+            
+            //FIXME:
+            //updateOnlineUsers(obj.user);
+        });
+    }
+
+    const updateNicknameSocket = (socket) => {
+        socket.on('send-nickname', (nickname) => {
+            socket.nickname = nickname;  
+        });
+    }
+
+    const updateCanvasSocket = (socket) => {
+        socket.on('updateCanvas', (obj) => {
+            console.log(obj.room);
+            if(obj){
+            socket.to(obj.room).emit('updateAllCanvases', {
+                data: obj.data
+            });
+            }
+            /* io.emit('updateAllCanvases', {
+            id: obj.id,
+            data: obj.data
+            }); */
+        });
+    }
+
     function updateOnlineUsers(user){
         let userFound = null;
         console.log(onlineUsers);
@@ -141,53 +193,15 @@ export default function SiteLogic(server) {
 
     io.on('connection', function(socket){
 
-        socket.on('join room', (obj) => {
-            socket.join(obj.roomId);
-            console.log(socket.id + " joined room " + obj.roomId)
-            socket.emit('room joined', obj.roomId);
+        joinGameSocket(socket);
 
-            // TODO: loop through users, if user is not found, then add user
-            // If user is found, then update room on user to obj.roomId
-            // Do this one create room as well
-            
-            //FIXME:
-            //updateOnlineUsers(obj.user);
-            console.log('online users:', onlineUsers);
-        });
+        createGameSocket(socket);
 
-        /* Maybe give room id on socket emit room joined */
+        updateNicknameSocket(socket);        
 
-        socket.on('create room', (user) => {
-            const roomId = Math.floor(Math.random() * 10000);
-            rooms.push({
-            id: roomId,
-            players: []
-            });
-            socket.join(roomId);
-            console.log(socket.id + " has joined room " + roomId);
-            socket.emit('room joined', roomId);
-            
-            //FIXME:
-            //updateOnlineUsers(user);
-        });
+        console.log(socket.id + ' has connected');
 
-        socket.on('send-nickname', (nickname) => {
-            socket.nickname = nickname;  
-        });
-
-        console.log('a user connected');
-        socket.on('updateCanvas', (obj) => {
-            console.log(obj.room);
-            if(obj){
-            socket.to(obj.room).emit('updateAllCanvases', {
-                data: obj.data
-            });
-            }
-            /* io.emit('updateAllCanvases', {
-            id: obj.id,
-            data: obj.data
-            }); */
-        });
+        updateCanvasSocket(socket);
     });
 
     
