@@ -24,6 +24,7 @@ export default class Board extends React.Component {
             socket: props.socket,
             kickUser: false,
             game: null,
+            isHost: false
         }
     }
 
@@ -43,9 +44,14 @@ export default class Board extends React.Component {
             // get info to find out if User is host. if host, then show play button. 
             // on play button click, emit (include user in emit?)
             this.setState({
-                game: game                
+                game: game
             });
             console.log(game);
+
+            if(game.host.id == this.state.socket.id){
+                this.setState({ isHost: true });
+            }
+
         });
         
         if(this.props.user.nickname == "" || this.props.user.room == null){
@@ -59,7 +65,11 @@ export default class Board extends React.Component {
     }
 
     showStartButton = () => {
-        return <Button type="primary" onClick={this.startGame} size="large">Start</Button>;
+        if(this.state.isHost){
+            return <Button type="primary" onClick={this.startGame} size="large">Start</Button>;
+        } else {
+            return;
+        }
     }
 
     showPlayers = () => {

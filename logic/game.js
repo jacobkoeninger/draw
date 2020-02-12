@@ -189,7 +189,12 @@ function SiteLogic(server) {
         socket.on('start game', function (clientGameInfo) {
             if (socketInGame(socket, clientGameInfo)) {
                 var realGame = findGame(clientGameInfo.room);
-                realGame.startGame();
+                if (socket.id === realGame.host.id) {
+                    realGame.startGame();
+                }
+                else {
+                    console.log(socket.id + ' is not host');
+                }
             }
             else {
                 console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
