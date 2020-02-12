@@ -87,7 +87,7 @@ export default class GameCanvas extends React.Component {
         });
 
         this.state.socket.on('clear boards', () => {
-            this.state.canvas.clear();
+            this.saveableCanvas.clear();
         });
         
         return(
