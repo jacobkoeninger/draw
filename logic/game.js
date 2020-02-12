@@ -5,7 +5,19 @@ var games = [];
 ;
 var Game = /** @class */ (function () {
     function Game(host, room, words, max_rounds) {
+        this.lobby = function () {
+            console.log('test');
+            /*
+                TODO:
+                - start game when host clicks start button
+            */
+        };
         this.startGame = function () {
+            console.log('Starting game');
+            console.log('Starting game');
+            console.log('Starting game');
+            console.log('Starting game');
+            console.log('Starting game');
             console.log('Starting game');
             /*
                 TODO:
@@ -26,15 +38,10 @@ var Game = /** @class */ (function () {
         this.max_rounds = max_rounds;
         this.current_round = -1;
         this.lobby();
+        this.test = function () {
+            return 'test';
+        };
     }
-    Game.prototype.lobby = function () {
-        console.log('reeeee');
-        console.log('lobby created');
-        /*
-            TODO:
-            - start game when host clicks start button
-        */
-    };
     Game.prototype.startRound = function () {
         /*
             TODO:
@@ -130,6 +137,8 @@ function SiteLogic(server) {
     var createNewGame = function (user) {
         var roomId = Math.floor(Math.random() * 10000);
         var NEW_GAME = new Game(user, roomId.toString(), ["word", "word 2", "word 3"], 10);
+        console.log(NEW_GAME);
+        NEW_GAME.startGame();
         games.push(NEW_GAME);
         return NEW_GAME;
     };
@@ -178,9 +187,8 @@ function SiteLogic(server) {
         socket.on('start game', function (game) {
             console.log(socket.id + ' is trying to start their game');
             if (socketInGame(socket, game)) {
-                /* FIXME: breaks server */
-                //game.lobby();
-                //game.startGame();
+                var realGame = findGame(game.room);
+                realGame.startGame();
             }
             else {
             }
@@ -206,6 +214,7 @@ function SiteLogic(server) {
         });
     };
     function socketInGame(socket, game) {
+        //TODO: A much more efficient way of doing this is just loop through the socket's rooms and check if room id is in there
         var userFound = null;
         game.players.forEach(function (player) {
             if (player.id == socket.id)

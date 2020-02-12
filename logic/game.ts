@@ -21,7 +21,10 @@ export class Game {
         - make sure to store this game in an array somewhere
         - handle disconnecting
         - handle users trying to connect mid game (maybe make this an option the host can set to allow)
-    */
+
+        Ideas:
+        - Setting for have X amount of guesses allotedd per round?
+        */
 
     public host: User; // user obj
     public room: string;
@@ -39,6 +42,8 @@ export class Game {
 
     public player_turns: Array<User>;
 
+    public test: any;
+
     constructor(host: User, room: string, words: Array<string>, max_rounds: number){
         this.status = "lobby";
         this.host = host;
@@ -52,18 +57,25 @@ export class Game {
         this.max_rounds = max_rounds;
         this.current_round = -1;
         this.lobby();
+        this.test = () => {
+            return 'test';
+        }
     }
     
-    lobby() {
-        console.log('reeeee')
-        console.log('lobby created');
+    lobby = () => {
+        console.log('test')
         /* 
             TODO:
             - start game when host clicks start button
         */
     }
 
-    public startGame = () => {
+    startGame = () => {
+        console.log('Starting game')
+        console.log('Starting game')
+        console.log('Starting game')
+        console.log('Starting game')
+        console.log('Starting game')
         console.log('Starting game')
         /* 
             TODO:
@@ -183,6 +195,8 @@ export default function SiteLogic(server) {
     const createNewGame = (user: User): Game => {
         const roomId = Math.floor(Math.random() * 10000);
         const NEW_GAME = new Game(user, roomId.toString(), ["word", "word 2", "word 3"], 10);
+        console.log(NEW_GAME);
+        NEW_GAME.startGame();
         games.push(NEW_GAME);
 
         return NEW_GAME;
@@ -243,9 +257,8 @@ export default function SiteLogic(server) {
             console.log(socket.id + ' is trying to start their game');
             
             if(socketInGame(socket, game)){
-                /* FIXME: breaks server */
-                //game.lobby();
-                //game.startGame();
+                const realGame = findGame(game.room);
+                realGame.startGame();
             } else {
 
             }
@@ -275,6 +288,7 @@ export default function SiteLogic(server) {
     };
 
     function socketInGame(socket: any, game: Game){
+        //TODO: A much more efficient way of doing this is just loop through the socket's rooms and check if room id is in there
         let userFound = null;
         game.players.forEach((player) => {
             if(player.id == socket.id) userFound = player;
