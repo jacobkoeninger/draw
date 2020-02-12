@@ -11,7 +11,7 @@ var Game = /** @class */ (function () {
         this.round_length = 60;
         this.max_players = 2;
         this.players = [];
-        this.players.push(host);
+        //this.players.push(host);
         this.words = words;
         this.words_used = [];
         this.max_rounds = max_rounds;
@@ -90,43 +90,58 @@ function SiteLogic(server) {
     io = require('socket.io')(server);
     var onlineUsers = [];
     var rooms = [];
+    /**
+     * Finds game using room id
+     * Joins user to the game room.
+     * Updates the game's players with the new player (user)
+     * @param user
+     * @param game
+     * @param socket
+     */
+    var joinGame = function (user, room, socket) {
+        console.log('attempting to join game with roomid: ' + room);
+        var game = findGame(room);
+        if (!game) {
+            console.error("Game not found with room ID: " + room);
+            return;
+        }
+        // Check if socket is already in the game. If it is, then update that player
+        var playerFound;
+        game.players.forEach(function (player, index) {
+            if (player.id == socket.id) {
+                playerFound == player;
+                game.players[index] = user;
+            }
+        });
+        if (!playerFound) {
+            console.log('Player not found');
+            game.players.push(user);
+        }
+        socket.join(game.room);
+        socket.emit('game joined', game);
+        console.log(socket.id + " has joined room " + game.room);
+    };
+    /**
+     * Creates a new Game (currently with preset settings)
+     * Adds Game to the array games[]
+     * @param user
+     * @returns game
+     */
+    var createNewGame = function (user) {
+        var roomId = Math.floor(Math.random() * 10000);
+        var NEW_GAME = new Game(user, roomId.toString(), ["word", "word 2", "word 3"], 10);
+        games.push(NEW_GAME);
+        return NEW_GAME;
+    };
     var createGameSocket = function (socket) {
         socket.on('create room', function (user) {
-            var roomId = Math.floor(Math.random() * 10000);
-            rooms.push({
-                id: roomId,
-                players: []
-            });
-            //console.log('??: ' + roomId);
-            var NEW_GAME = new Game(user, roomId.toString(), ["word", "word 2", "word 3"], 10);
-            games.push(NEW_GAME); //? host, room, words, max_rounds
-            //console.log(games);
-            socket.join(NEW_GAME.room);
-            console.log(socket.id + " has joined room " + NEW_GAME.room);
-            socket.emit('game joined', NEW_GAME);
-            //FIXME:
-            //updateOnlineUsers(user);
+            var NEW_GAME = createNewGame(user);
+            joinGame(user, NEW_GAME.room, socket);
         });
     };
     var joinGameSocket = function (socket) {
         socket.on('join game', function (obj) {
-            console.log('player who joined game', obj);
-            var gameFound = findGame(obj.roomId);
-            if (!gameFound) {
-                console.log('room not found', obj.roomId);
-                socket.emit('game joined', null);
-            }
-            else {
-                socket.join(gameFound.room);
-                gameFound.players.push(obj.user);
-                console.log(socket.id + " joined room " + gameFound.room);
-                socket.emit('game joined', gameFound);
-            }
-            // TODO: loop through users, if user is not found, then add user
-            // If user is found, then update room on user to obj.roomId
-            // Do this one create room as well
-            //FIXME:
-            //updateOnlineUsers(obj.user);
+            joinGame(obj.user, obj.roomId, socket);
         });
     };
     var updateNicknameSocket = function (socket) {

@@ -147,13 +147,7 @@ export default class Home extends React.Component {
                         this.setState({ nickname: e.target.value })
                     }} placeholder="John Smith" suffix="Nickname" />
                 </Modal>
-
-
-                {/* <div className="homeFormGroup">
-                    <Input onChange={(e) => {this.setState({nickname: e.target.value})}} placeholder="Nickname" />
-                    <Button type="primary" onClick={this.setNickname} >Set</Button>
-                </div>
-                 */}
+                
                 <div className="homeFormGroup">
                     <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
                     <Button type="primary" onClick={() => {
