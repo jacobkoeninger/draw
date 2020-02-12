@@ -42,8 +42,6 @@ export class Game {
 
     public player_turns: Array<User>;
 
-    public test: any;
-
     constructor(host: User, room: string, words: Array<string>, max_rounds: number){
         this.status = "lobby";
         this.host = host;
@@ -57,13 +55,9 @@ export class Game {
         this.max_rounds = max_rounds;
         this.current_round = -1;
         this.lobby();
-        this.test = () => {
-            return 'test';
-        }
     }
     
     lobby = () => {
-        console.log('test')
         /* 
             TODO:
             - start game when host clicks start button
@@ -71,19 +65,31 @@ export class Game {
     }
 
     startGame = () => {
-        console.log('Starting game')
-        console.log('Starting game')
-        console.log('Starting game')
-        console.log('Starting game')
-        console.log('Starting game')
-        console.log('Starting game')
+        console.log('Starting game: ' + this.room);
         /* 
             TODO:
-            - set player_turns (randomize all of the game's players into the array)
             - set status to active
+            - set player_turns (randomize all of the game's players into the array)
             - run start round
+            - make sure there are at least 2 players
         */
+
+        if (this.status === "active") {
+            console.error('Game is already active');
+            return;
+        }
+        if (this.players.length < 2) {
+            console.error('Not enough players');
+            return; //TODO: give error to user in flash message
+        }
+
+        this.player_turns = (() => {
+            const players = this.players;            
+            return players.sort(() => Math.random() - 0.5);
+        })();
         
+        this.status = "active";       
+
     }
 
     startRound() {
@@ -176,8 +182,8 @@ export default function SiteLogic(server) {
             }
         });
         
+        // Add player if they are not already in the game
         if(!playerFound) {
-            console.log('Player not found');
             game.players.push(user);
         }
 
@@ -195,8 +201,6 @@ export default function SiteLogic(server) {
     const createNewGame = (user: User): Game => {
         const roomId = Math.floor(Math.random() * 10000);
         const NEW_GAME = new Game(user, roomId.toString(), ["word", "word 2", "word 3"], 10);
-        console.log(NEW_GAME);
-        NEW_GAME.startGame();
         games.push(NEW_GAME);
 
         return NEW_GAME;
@@ -225,7 +229,7 @@ export default function SiteLogic(server) {
 
     const updateCanvasSocket = (socket) => {
         socket.on('updateCanvas', (obj) => {
-            console.log(obj.room);
+            console.log(obj.room + ' is being painted');
             if(obj){
                 socket.to(obj.room).emit('updateAllCanvases', {
                     data: obj.data
@@ -242,8 +246,6 @@ export default function SiteLogic(server) {
         socket.on('joined lobby', (roomId: string) => {
             
             const GAME_FOUND = findGame(roomId);
-            console.log('Searching for game with ID: ' + roomId);
-            console.log('lobby found', GAME_FOUND);
             if(GAME_FOUND) {
                 io.in(roomId).emit('game info', GAME_FOUND);
                 //socket.emit('game info', lobby);
@@ -253,8 +255,6 @@ export default function SiteLogic(server) {
 
     const startGameSocket = (socket) => {
         socket.on('start game', (clientGameInfo: Game) => {
-            
-            console.log(socket.id + ' is trying to start their game');
             
             if(socketInGame(socket, clientGameInfo)){
                 const realGame = findGame(clientGameInfo.room);

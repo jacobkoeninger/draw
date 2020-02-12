@@ -5,26 +5,35 @@ var games = [];
 ;
 var Game = /** @class */ (function () {
     function Game(host, room, words, max_rounds) {
+        var _this = this;
         this.lobby = function () {
-            console.log('test');
             /*
                 TODO:
                 - start game when host clicks start button
             */
         };
         this.startGame = function () {
-            console.log('Starting game');
-            console.log('Starting game');
-            console.log('Starting game');
-            console.log('Starting game');
-            console.log('Starting game');
-            console.log('Starting game');
+            console.log('Starting game: ' + _this.room);
             /*
                 TODO:
-                - set player_turns (randomize all of the game's players into the array)
                 - set status to active
+                - set player_turns (randomize all of the game's players into the array)
                 - run start round
+                - make sure there are at least 2 players
             */
+            if (_this.status === "active") {
+                console.error('Game is already active');
+                return;
+            }
+            if (_this.players.length < 2) {
+                console.error('Not enough players');
+                return; //TODO: give error to user in flash message
+            }
+            _this.player_turns = (function () {
+                var players = _this.players;
+                return players.sort(function () { return Math.random() - 0.5; });
+            })();
+            _this.status = "active";
         };
         this.status = "lobby";
         this.host = host;
@@ -38,9 +47,6 @@ var Game = /** @class */ (function () {
         this.max_rounds = max_rounds;
         this.current_round = -1;
         this.lobby();
-        this.test = function () {
-            return 'test';
-        };
     }
     Game.prototype.startRound = function () {
         /*
@@ -120,8 +126,8 @@ function SiteLogic(server) {
                 game.players[index] = user;
             }
         });
+        // Add player if they are not already in the game
         if (!playerFound) {
-            console.log('Player not found');
             game.players.push(user);
         }
         socket.join(game.room);
@@ -137,8 +143,6 @@ function SiteLogic(server) {
     var createNewGame = function (user) {
         var roomId = Math.floor(Math.random() * 10000);
         var NEW_GAME = new Game(user, roomId.toString(), ["word", "word 2", "word 3"], 10);
-        console.log(NEW_GAME);
-        NEW_GAME.startGame();
         games.push(NEW_GAME);
         return NEW_GAME;
     };
@@ -160,7 +164,7 @@ function SiteLogic(server) {
     };
     var updateCanvasSocket = function (socket) {
         socket.on('updateCanvas', function (obj) {
-            console.log(obj.room);
+            console.log(obj.room + ' is being painted');
             if (obj) {
                 socket.to(obj.room).emit('updateAllCanvases', {
                     data: obj.data
@@ -175,8 +179,6 @@ function SiteLogic(server) {
     var getLobbyInfoSocket = function (socket) {
         socket.on('joined lobby', function (roomId) {
             var GAME_FOUND = findGame(roomId);
-            console.log('Searching for game with ID: ' + roomId);
-            console.log('lobby found', GAME_FOUND);
             if (GAME_FOUND) {
                 io["in"](roomId).emit('game info', GAME_FOUND);
                 //socket.emit('game info', lobby);
@@ -185,7 +187,6 @@ function SiteLogic(server) {
     };
     var startGameSocket = function (socket) {
         socket.on('start game', function (clientGameInfo) {
-            console.log(socket.id + ' is trying to start their game');
             if (socketInGame(socket, clientGameInfo)) {
                 var realGame = findGame(clientGameInfo.room);
                 realGame.startGame();
