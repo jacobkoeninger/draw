@@ -83,12 +83,6 @@ var Game = /** @class */ (function () {
             this.current_round = this.current_round + 1;
         }
     };
-    Game.prototype.clearBoards = function () {
-        /*
-            TODO:
-            - clear the boards of each player in this room
-        */
-    };
     Game.prototype.updateWord = function () {
         /*
             TODO:
@@ -122,9 +116,12 @@ var Game = /** @class */ (function () {
             - show results
             - maybe redirect all users to Home
         */
+        console.log('Game has ended');
+    };
+    Game.prototype.clearBoards = function () {
+        io["in"](this.room).emit('clear boards');
     };
     Game.prototype.updateClients = function () {
-        //console.log(this);
         io["in"](this.room).emit('game info', this);
     };
     return Game;

@@ -130,14 +130,7 @@ export class Game {
             this.current_round = this.current_round + 1;            
        }
         
-    }
-
-    clearBoards() {
-        /* 
-            TODO:
-            - clear the boards of each player in this room
-        */
-    }
+    }    
 
     updateWord() {
         /* 
@@ -174,11 +167,14 @@ export class Game {
             - show results
             - maybe redirect all users to Home
         */
+        console.log('Game has ended');
     }
 
+    clearBoards() {
+        io.in(this.room).emit('clear boards');
+    }
 
     updateClients() {
-        //console.log(this);
         io.in(this.room).emit('game info', this);
     }
 
