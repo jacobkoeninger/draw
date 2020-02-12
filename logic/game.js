@@ -89,7 +89,6 @@ exports.Game = Game;
 function SiteLogic(server) {
     io = require('socket.io')(server);
     var onlineUsers = [];
-    var rooms = [];
     /**
      * Finds game using room id
      * Joins user to the game room.

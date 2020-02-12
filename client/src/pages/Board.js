@@ -29,7 +29,7 @@ export default class Board extends React.Component {
 
     showUsers = () => {
         if(this.state.game) {
-            return <UserList users={this.state.game.players} />
+            return <UserList users={this.state.game.players} socket={this.state.socket} />
         } else {
             return <p>Loading...</p>;
         }

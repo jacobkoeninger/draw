@@ -133,8 +133,6 @@ export default function SiteLogic(server) {
     io = require('socket.io')(server);
 
     let onlineUsers = [];
-    let rooms = [];
-
 
     /**
      * Finds game using room id

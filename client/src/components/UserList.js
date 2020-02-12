@@ -5,14 +5,27 @@ import {
 } from 'antd';
 
 export default class UserList extends React.Component {
+
     constructor(props){
         super(props);
         this.state = {
-            users: props.users
+            users: props.users,
+            socket: props.socket
         }
     }
 
+    componentDidUpdate = (e) => {
+        console.log('list updated? ', e)
+    }
+
     render(){
+
+        this.state.socket.on('game info', (game) => {
+            this.setState({
+                users: game.players
+            });
+        });
+
         return(
             <div>
                 <List

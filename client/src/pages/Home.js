@@ -65,21 +65,9 @@ export default class Home extends React.Component {
     componentDidMount = () => {
         //console.log(this.props.user)
     }
-
-    /* setNickname = () => {
-        if(this.state.nickname != ""){
-            this.state.socket.emit('send-nickname', this.state.nickname)
-            this.props.setNickname(this.state.nickname);
-        };
-    } */
     
-    setNickname = () => {
-        this.showModal();
-    }
-
     joinRoom = () => {
         if(this.state.nickname != "" && this.state.roomNumber != "") {
-            //this.props.setRoom(this.state.roomNumber);
             this.state.socket.emit('join game', {roomId: this.state.roomNumber, user: this.props.user} );
         };
     }
@@ -94,17 +82,11 @@ export default class Home extends React.Component {
 
             Don't change to board page until the backend emits back to the frontend confirming the room was joined
          */
-        console.log('creating room', this.state.nickname)
         if(this.state.nickname != ""){
-            //this.props.setRoom(this.state.roomNumber);
-            console.log('does this work', this.props.user);
-            this.state.socket.emit('create room', this.props.user); //?
+            this.state.socket.emit('create room', this.props.user);
         } else {
             console.error("Please set nickname");
         }
-
-             
-
     }
 
     joinRoomSocket = _ => {
