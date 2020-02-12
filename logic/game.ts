@@ -217,7 +217,7 @@ export default function SiteLogic(server) {
             console.log(socket.id + ' is trying to start their game');
             
             if(socketInGame(socket, game)){
-                /* console.log(game); */
+                /* FIXME: breaks server */
                 game.startGame();
             } else {
 
@@ -236,10 +236,6 @@ export default function SiteLogic(server) {
     }
 
     const handleDisconnect = (socketId: string) => {
-    /* 
-    TODO:
-    - Loop through games and remove user from them
-    */
         games.forEach((game) => {
             game.players = game.players.filter((player) => {
                 if(player.id !== socketId){

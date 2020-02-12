@@ -163,7 +163,7 @@ function SiteLogic(server) {
         socket.on('start game', function (game) {
             console.log(socket.id + ' is trying to start their game');
             if (socketInGame(socket, game)) {
-                /* console.log(game); */
+                /* FIXME: breaks server */
                 game.startGame();
             }
             else {
@@ -179,10 +179,6 @@ function SiteLogic(server) {
         });
     };
     var handleDisconnect = function (socketId) {
-        /*
-        TODO:
-        - Loop through games and remove user from them
-        */
         games.forEach(function (game) {
             game.players = game.players.filter(function (player) {
                 if (player.id !== socketId) {
