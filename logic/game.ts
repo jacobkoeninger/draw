@@ -96,12 +96,12 @@ export class Game {
             TODO:
             - clear board
             - update current round
-            - update artist (if round == 0 then choose a random player. else: go to next User in this.player_turns)
+            - update artist
             - update current word
             - emit out to users the new info so they can update their clients accordingly
         */
        this.clearBoards();
-       this.current_round = this.current_round + 1;
+       this.updateCurrentRound();
        this.updateArtist();
        this.updateWord();
        this.updateClients();
@@ -113,6 +113,9 @@ export class Game {
             - give points to users
             - start new round
         */
+
+        console.log('Round has ended');
+
     }
 
     updateCurrentRound() {
@@ -120,6 +123,13 @@ export class Game {
             TODO:
             - if this.current_round + 1 > max_round, then end the game. else: increase the current_round by one
         */
+       
+       if((this.current_round + 1) > this.max_rounds){
+           this.endGame();
+        } else {
+            this.current_round = this.current_round + 1;            
+       }
+        
     }
 
     clearBoards() {
@@ -132,8 +142,12 @@ export class Game {
     updateWord() {
         /* 
             TODO:
-            - choose a random word from this.words, make sure it hasn't be chosen before (not in this.used_words)
+            - choose a random word from this.words
+            - make sure it hasn't be chosen before (not in this.used_words)
         */
+        
+        this.current_word = this.words[Math.floor(Math.random() * this.words.length - 1)];
+
     }
 
     updateArtist(){
