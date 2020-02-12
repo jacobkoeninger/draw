@@ -12,8 +12,8 @@ import UserList from '../components/UserList';
 export default class Board extends React.Component {
     /* 
     TODO:
-    - Show players in room
-    - Add chat
+    - Add the nickname input here instead of home. 
+        - Initially show the nickname popup, then the (canvas?)
     - Add protection against users joining who shouldn't. ex: private games, invite only, etc
     - Add start button for host only
     
@@ -36,8 +36,7 @@ export default class Board extends React.Component {
     }
 
     componentDidMount = () => {
-        // TODO: - Socket emit that they have joined the lobby (receive back whether they are host or not, and the current players in the game)    
-        
+
         this.state.socket.emit('joined lobby', this.props.user.room);
 
         this.state.socket.on('game info', (game) => {
