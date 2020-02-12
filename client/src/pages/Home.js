@@ -4,7 +4,8 @@ import {Redirect} from "react-router-dom";
 
 import {
     Button,
-    Input
+    Input,
+    Modal,
 } from 'antd';
 
 export default class Home extends React.Component {
@@ -20,22 +21,62 @@ export default class Home extends React.Component {
             socket: props.socket,
             nickname: "",
             roomNumber: "",
-            roomJoined: false
+            roomJoined: false,
+            nickModalVisible: false,
+            creatingOrJoining: null
         };
         this.joinRoomSocket();
     }
+
+
+    showModal = () => {
+        this.setState({
+          nickModalVisible: true,
+        });
+      };
+    
+    handleOk = e => {
+        console.log(e);
+        this.setState({
+            nickModalVisible: false,
+        });
+
+        if(this.state.nickname !== ""){
+
+            this.props.setNickname(this.state.nickname);
+
+            if(this.state.creatingOrJoining == "joining"){
+                this.joinRoom();
+            } else if (this.state.creatingOrJoining == "creating"){
+                this.createRoom();
+            }
+        }
+
+    };
+
+    handleCancel = e => {
+        console.log(e);
+        this.setState({
+            nickModalVisible: false,
+        });
+    };
+
 
     componentDidMount = () => {
         //console.log(this.props.user)
     }
 
-    setNickname = () => {
+    /* setNickname = () => {
         if(this.state.nickname != ""){
             this.state.socket.emit('send-nickname', this.state.nickname)
             this.props.setNickname(this.state.nickname);
         };
-    }
+    } */
     
+    setNickname = () => {
+        this.showModal();
+    }
+
     joinRoom = () => {
         if(this.state.nickname != "" && this.state.roomNumber != "") {
             //this.props.setRoom(this.state.roomNumber);
@@ -53,6 +94,7 @@ export default class Home extends React.Component {
 
             Don't change to board page until the backend emits back to the frontend confirming the room was joined
          */
+        console.log('creating room', this.state.nickname)
         if(this.state.nickname != ""){
             //this.props.setRoom(this.state.roomNumber);
             console.log('does this work', this.props.user);
@@ -93,18 +135,38 @@ export default class Home extends React.Component {
             <div>
                 <h4>Home</h4>
                 
-                <div className="homeFormGroup">
+                <Modal
+                    title="Set nickname"
+                    visible={this.state.nickModalVisible}
+                    onOk={() => {
+                        this.handleOk();
+                    }}
+                    onCancel={this.handleCancel}
+                    >
+                    <Input onChange={(e) => {
+                        this.setState({ nickname: e.target.value })
+                    }} placeholder="John Smith" suffix="Nickname" />
+                </Modal>
+
+
+                {/* <div className="homeFormGroup">
                     <Input onChange={(e) => {this.setState({nickname: e.target.value})}} placeholder="Nickname" />
                     <Button type="primary" onClick={this.setNickname} >Set</Button>
                 </div>
-
+                 */}
                 <div className="homeFormGroup">
                     <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
-                    <Button type="primary" onClick={this.joinRoom}>Join</Button>
+                    <Button type="primary" onClick={() => {
+                        this.setState({ creatingOrJoining: "joining" });
+                        this.showModal();
+                    }}>Join</Button>
                 </div>
 
                 <div className="homeFormGroup">
-                    <Button type="primary" onClick={this.createRoom}>Create Room</Button>
+                    <Button type="primary" onClick={() => {
+                        this.setState({ creatingOrJoining: "creating" });
+                        this.showModal();
+                    }}>Create Room</Button>
                 </div>
             </div>
         );
