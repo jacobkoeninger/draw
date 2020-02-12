@@ -184,13 +184,14 @@ function SiteLogic(server) {
         });
     };
     var startGameSocket = function (socket) {
-        socket.on('start game', function (game) {
+        socket.on('start game', function (clientGameInfo) {
             console.log(socket.id + ' is trying to start their game');
-            if (socketInGame(socket, game)) {
-                var realGame = findGame(game.room);
+            if (socketInGame(socket, clientGameInfo)) {
+                var realGame = findGame(clientGameInfo.room);
                 realGame.startGame();
             }
             else {
+                console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
             }
         });
     };

@@ -252,15 +252,15 @@ export default function SiteLogic(server) {
     }
 
     const startGameSocket = (socket) => {
-        socket.on('start game', (game: Game) => {
+        socket.on('start game', (clientGameInfo: Game) => {
             
             console.log(socket.id + ' is trying to start their game');
             
-            if(socketInGame(socket, game)){
-                const realGame = findGame(game.room);
+            if(socketInGame(socket, clientGameInfo)){
+                const realGame = findGame(clientGameInfo.room);
                 realGame.startGame();
             } else {
-
+                console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
             }
             
         });
