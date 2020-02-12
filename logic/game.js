@@ -5,6 +5,15 @@ var games = [];
 ;
 var Game = /** @class */ (function () {
     function Game(host, room, words, max_rounds) {
+        this.startGame = function () {
+            console.log('Starting game');
+            /*
+                TODO:
+                - set player_turns (randomize all of the game's players into the array)
+                - set status to active
+                - run start round
+            */
+        };
         this.status = "lobby";
         this.host = host;
         this.room = room;
@@ -19,19 +28,11 @@ var Game = /** @class */ (function () {
         this.lobby();
     }
     Game.prototype.lobby = function () {
+        console.log('reeeee');
         console.log('lobby created');
         /*
             TODO:
             - start game when host clicks start button
-        */
-    };
-    Game.prototype.startGame = function () {
-        console.log('Starting game');
-        /*
-            TODO:
-            - set player_turns (randomize all of the game's players into the array)
-            - set status to active
-            - run start round
         */
     };
     Game.prototype.startRound = function () {
@@ -178,7 +179,8 @@ function SiteLogic(server) {
             console.log(socket.id + ' is trying to start their game');
             if (socketInGame(socket, game)) {
                 /* FIXME: breaks server */
-                game.startGame();
+                //game.lobby();
+                //game.startGame();
             }
             else {
             }

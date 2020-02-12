@@ -10,6 +10,9 @@ interface User {
     id: string;
 };
 
+
+
+
 export class Game {
     
     /* 
@@ -52,6 +55,7 @@ export class Game {
     }
     
     lobby() {
+        console.log('reeeee')
         console.log('lobby created');
         /* 
             TODO:
@@ -59,7 +63,7 @@ export class Game {
         */
     }
 
-    public startGame() {
+    public startGame = () => {
         console.log('Starting game')
         /* 
             TODO:
@@ -240,7 +244,8 @@ export default function SiteLogic(server) {
             
             if(socketInGame(socket, game)){
                 /* FIXME: breaks server */
-                game.startGame();
+                //game.lobby();
+                //game.startGame();
             } else {
 
             }
