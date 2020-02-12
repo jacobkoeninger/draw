@@ -10,12 +10,18 @@ export default class UserList extends React.Component {
         super(props);
         this.state = {
             users: props.users,
-            socket: props.socket
+            socket: props.socket,
+            artist: null
         }
     }
 
-    componentDidUpdate = (e) => {
-        console.log('list updated? ', e)
+    componentDidUpdate = () => {
+        console.log('user list updated')
+        if(this.props.artist){
+            /* this.setState({
+                artist: this.props.artist
+            }); */
+        }
     }
 
     render(){

@@ -49,11 +49,10 @@ export class Game {
         this.round_length = 60;
         this.max_players = 2;
         this.players = [];
-        //this.players.push(host);
         this.words = words;
         this.words_used = [];
         this.max_rounds = max_rounds;
-        this.current_round = -1;
+        this.current_round = 0;
         this.lobby();
     }
     
@@ -88,8 +87,8 @@ export class Game {
             return players.sort(() => Math.random() - 0.5);
         })();
         
-        this.status = "active";       
-
+        this.status = "active";
+        this.startRound();
     }
 
     startRound() {
@@ -99,7 +98,13 @@ export class Game {
             - update current round
             - update artist (if round == 0 then choose a random player. else: go to next User in this.player_turns)
             - update current word
+            - emit out to users the new info so they can update their clients accordingly
         */
+       this.clearBoards();
+       this.current_round = this.current_round + 1;
+       this.updateArtist();
+       this.updateWord();
+       this.updateClients();
     }
 
     endRound() {
@@ -134,10 +139,19 @@ export class Game {
     updateArtist(){
         /* 
             TODO:
-            - decide who the new artist is (if round == 0 then choose a random player. else: go to next User in this.player_turns)
             - only allow artist to be able to draw
             - artist no longer can type in chat
         */
+        if(this.current_artist){
+            const currentArtistIndex = this.player_turns.indexOf(this.current_artist); // FIXME: make sure this works
+            if(this.player_turns[currentArtistIndex + 1]){
+                this.current_artist = this.player_turns[currentArtistIndex + 1];
+            } else {
+                this.current_artist = this.player_turns[0];
+            }
+        } else {
+            this.current_artist = this.player_turns[0];
+        }
     }
 
     endGame() {
@@ -146,6 +160,12 @@ export class Game {
             - show results
             - maybe redirect all users to Home
         */
+    }
+
+
+    updateClients() {
+        //console.log(this);
+        io.in(this.room).emit('game info', this);
     }
 
 }
@@ -165,11 +185,11 @@ export default function SiteLogic(server) {
      * @param socket 
      */
     const joinGame = (user: User, room: string, socket) => {
-        console.log('attempting to join game with roomid: ' + room);
         const game = findGame(room);
 
         if(!game) {
             console.error("Game not found with room ID: " + room);
+            // TODO: tell user game was not found with flash message
             return;
         }
 

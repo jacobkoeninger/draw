@@ -21,7 +21,8 @@ export default class GameCanvas extends React.Component {
         } */
         this.state = {
             canvas: canvas,
-            socket: props.socket
+            socket: props.socket,
+            isArtist: false
         }
     }
 
@@ -47,6 +48,17 @@ export default class GameCanvas extends React.Component {
 
     componentDidUpdate = () => {
         console.log('canvas updated')
+        /* if(this.props.artist){
+            if(this.props.artist.id == this.state.socket.id){
+                this.setState({
+                    isArtist: true
+                });
+            } else {
+                this.setState({
+                    isArtist: false
+                });
+            }
+        } */
     }
 
     getCanvas = () => {
@@ -87,6 +99,7 @@ export default class GameCanvas extends React.Component {
                 canvasWidth = {1000}
                 canvasHeight = {500}
                 loadTimeOffset = {5}
+                disabled={!this.state.isArtist}
             />
             <Button type="ghost" onClick={() => {
                 this.saveableCanvas.undo();

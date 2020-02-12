@@ -24,13 +24,14 @@ export default class Board extends React.Component {
             socket: props.socket,
             kickUser: false,
             game: null,
-            isHost: false
+            isHost: false,
+            artist: null
         }
     }
 
     showUsers = () => {
         if(this.state.game) {
-            return <UserList users={this.state.game.players} socket={this.state.socket} />
+            return <UserList artist={this.state.artist} users={this.state.game.players} socket={this.state.socket} />
         } else {
             return <p>Loading...</p>;
         }
@@ -51,6 +52,9 @@ export default class Board extends React.Component {
             if(game.host.id == this.state.socket.id){
                 this.setState({ isHost: true });
             }
+            if(game.status == "active"){
+                this.setState({ artist: game.current_artist });
+            }
 
         });
         
@@ -65,8 +69,10 @@ export default class Board extends React.Component {
     }
 
     showStartButton = () => {
-        if(this.state.isHost){
-            return <Button type="primary" onClick={this.startGame} size="large">Start</Button>;
+        if(this.state.isHost && this.state.game){
+            if(this.state.game.status === "lobby"){
+                return <Button type="primary" onClick={this.startGame} size="large">Start</Button>;
+            }
         } else {
             return;
         }
@@ -98,10 +104,10 @@ export default class Board extends React.Component {
                 </Row>
                 <Row>
                     <Col span={15} >
-                        <GameCanvas socket={this.state.socket} user={this.props.user} />
+                        <GameCanvas artist={this.state.artist} socket={this.state.socket} user={this.props.user} />
                     </Col>
                     <Col span={6} >
-                        <GameChat socket={this.state.socket} user={this.props.user} game={this.state.game} />
+                        <GameChat artist={this.state.artist} socket={this.state.socket} user={this.props.user} game={this.state.game} />
                     </Col>
                     <Col span={3} >
                         { this.showUsers() }

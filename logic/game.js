@@ -34,6 +34,7 @@ var Game = /** @class */ (function () {
                 return players.sort(function () { return Math.random() - 0.5; });
             })();
             _this.status = "active";
+            _this.startRound();
         };
         this.status = "lobby";
         this.host = host;
@@ -41,11 +42,10 @@ var Game = /** @class */ (function () {
         this.round_length = 60;
         this.max_players = 2;
         this.players = [];
-        //this.players.push(host);
         this.words = words;
         this.words_used = [];
         this.max_rounds = max_rounds;
-        this.current_round = -1;
+        this.current_round = 0;
         this.lobby();
     }
     Game.prototype.startRound = function () {
@@ -55,7 +55,13 @@ var Game = /** @class */ (function () {
             - update current round
             - update artist (if round == 0 then choose a random player. else: go to next User in this.player_turns)
             - update current word
+            - emit out to users the new info so they can update their clients accordingly
         */
+        this.clearBoards();
+        this.current_round = this.current_round + 1;
+        this.updateArtist();
+        this.updateWord();
+        this.updateClients();
     };
     Game.prototype.endRound = function () {
         /*
@@ -85,10 +91,21 @@ var Game = /** @class */ (function () {
     Game.prototype.updateArtist = function () {
         /*
             TODO:
-            - decide who the new artist is (if round == 0 then choose a random player. else: go to next User in this.player_turns)
             - only allow artist to be able to draw
             - artist no longer can type in chat
         */
+        if (this.current_artist) {
+            var currentArtistIndex = this.player_turns.indexOf(this.current_artist); // FIXME: make sure this works
+            if (this.player_turns[currentArtistIndex + 1]) {
+                this.current_artist = this.player_turns[currentArtistIndex + 1];
+            }
+            else {
+                this.current_artist = this.player_turns[0];
+            }
+        }
+        else {
+            this.current_artist = this.player_turns[0];
+        }
     };
     Game.prototype.endGame = function () {
         /*
@@ -96,6 +113,10 @@ var Game = /** @class */ (function () {
             - show results
             - maybe redirect all users to Home
         */
+    };
+    Game.prototype.updateClients = function () {
+        //console.log(this);
+        io["in"](this.room).emit('game info', this);
     };
     return Game;
 }());
@@ -112,10 +133,10 @@ function SiteLogic(server) {
      * @param socket
      */
     var joinGame = function (user, room, socket) {
-        console.log('attempting to join game with roomid: ' + room);
         var game = findGame(room);
         if (!game) {
             console.error("Game not found with room ID: " + room);
+            // TODO: tell user game was not found with flash message
             return;
         }
         // Check if socket is already in the game. If it is, then update that player

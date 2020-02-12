@@ -19,7 +19,8 @@ export default class GameChat extends React.Component {
             messsage: "",
             socket: props.socket,
             game: props.game,
-            data: []
+            data: [],
+            isArtist: false
         }
         this.receiveMessageSocket();
     }
@@ -35,7 +36,21 @@ export default class GameChat extends React.Component {
     }
 
     componentDidUpdate = () => {
-
+        console.log('chat updated')
+        if(this.props.artist){
+            if (this.props.artist.id === this.state.socket.id){
+                console.log('I am artist')
+            }
+            /* if(this.props.artist.id == this.state.socket.id){
+                this.setState({
+                    isArtist: true
+                });
+            } else {
+                this.setState({
+                    isArtist: false
+                });
+            } */
+        }
     }
 
     
@@ -83,6 +98,7 @@ export default class GameChat extends React.Component {
             <div className="chat">
                 <h4>{ this.props.user.nickname }</h4>
                 <Input
+                    disabled={this.props.isArtist}
                     placeholder="Chat..."
                     style={{ width: '80%' }}
                     onChange={(e) => this.setState({
