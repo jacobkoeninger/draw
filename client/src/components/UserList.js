@@ -24,16 +24,26 @@ export default class UserList extends React.Component {
         }
     }
 
+    getNickname = () => {
+        if(this.state.artist){
+            return this.state.artist.nickname;
+        } else {
+            return '';
+        }
+    }
+
     render(){
 
         this.state.socket.on('game info', (game) => {
             this.setState({
-                users: game.players
+                users: game.players,
+                artist: game.current_artist
             });
         });
 
         return(
             <div>
+                <h4> { this.getNickname() } </h4>
                 <List
                     itemLayout="vertical"
                     dataSource={this.state.users}
