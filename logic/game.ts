@@ -34,7 +34,7 @@ export class Game {
         - Setting for have X amount of guesses allotedd per round?
         */
     public timer;
-    public host: User; // user obj
+    public host: User;
     public room: string;
     public status: string;
     public round_length: number; // in ms

@@ -145,17 +145,27 @@ export default class Home extends React.Component {
                 </Modal>
                 
                 <Row>
+                    <Col span={4} offset={10}>
+                        <h1>
+                            Draw
+                        </h1>
+                    </Col>
+                </Row>
+                <Row>
                     <Col span={4} offset={10} >
                         <div className="homeFormGroup">
                             <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
-                            <Button size="large" type="primary" onClick={() => {
+                            <Button size="large" type="" onClick={() => {
                                 this.setState({ creatingOrJoining: "joining" });
                                 this.showModal();
                             }}>Join</Button>
                         </div>
-        
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={4} offset={10} >
                         <div className="homeFormGroup">
-                            <Button size="large" type="primary" onClick={() => {
+                            <Button size="large" type="" onClick={() => {
                                 this.setState({ creatingOrJoining: "creating" });
                                 this.showModal();
                             }}>Create Room</Button>
