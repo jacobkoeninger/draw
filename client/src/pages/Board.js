@@ -27,8 +27,10 @@ export default class Board extends React.Component {
             game: null,
             isHost: false,
             artist: null,
-            current_round: null,
-            current_word: null
+            current_round: null,            
+            current_word: null,
+            time_left: null,
+            timer: null
         }
     }
 
@@ -43,9 +45,26 @@ export default class Board extends React.Component {
         }
     }
 
-    componentDidMount = () => {
+    countDown = () => {
+        let t = this.state.time_left - 1000;
+        this.setState({
+            time_left: t
+        });
+    }
 
-        
+    componentDidMount = () => {
+        this.state.socket.on('round started', (round_length) => {
+            this.setState({
+                time_left: round_length
+            });
+
+            clearInterval(this.state.timer);
+
+            this.setState({
+                timer: setInterval(this.countDown, 1000)
+            });
+
+        });
 
         this.state.socket.emit('joined lobby', this.props.user.room);
 
@@ -117,6 +136,14 @@ export default class Board extends React.Component {
         }
     }
 
+    showTimer = () => {
+        if(this.state.time_left){
+            return this.state.time_left / 1000;
+        } else {
+            return;
+        }
+    }
+
     render() {
         if(this.state.kickUser) return <Redirect to={"/"} />;
         return (
@@ -125,6 +152,9 @@ export default class Board extends React.Component {
                     <p>Board - {this.props.user.room}</p>
                     <h2>
                         { this.showCurrentWord() }
+                    </h2>
+                    <h2>
+                        { this.showTimer() }
                     </h2>
                     <div>
                         { this.showStartButton() }

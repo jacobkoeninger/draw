@@ -65,7 +65,7 @@ export default class UserList extends React.Component {
         });
 
         return(
-            <div>
+            <div className="userList">
                 <h4> { this.getArtistNickname() } </h4>
                 <List
                     itemLayout="vertical"

@@ -102,13 +102,10 @@ var Game = /** @class */ (function () {
                         //this.timer = setTimeout(() => {console.log('???')}, this.round_length);
                         //await this.timer;
                         //console.log('after timer!!!!!!!!!!');
+                        io["in"](this.room).emit('round started', this.round_length);
                         _a = this;
                         return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, _this.round_length); })];
                     case 1:
-                        //setTimeout(this.endRound, this.round_length);
-                        //this.timer = setTimeout(() => {console.log('???')}, this.round_length);
-                        //await this.timer;
-                        //console.log('after timer!!!!!!!!!!');
                         _a.timer = _b.sent(); // sleep 
                         this.endRound();
                         _b.label = 2;

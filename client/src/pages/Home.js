@@ -5,6 +5,7 @@ import {Redirect} from "react-router-dom";
 import {
     Button,
     Input,
+    Icon,
     Modal,
     notification,
     Row,
@@ -143,34 +144,35 @@ export default class Home extends React.Component {
                         this.setState({ nickname: e.target.value })
                     }} placeholder="John Smith" suffix="Nickname" />
                 </Modal>
-                
                 <Row>
-                    <Col span={4} offset={10}>
-                        <h1>
-                            Draw
-                        </h1>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={4} offset={10} >
-                        <div className="homeFormGroup">
-                            <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
-                            <Button size="large" type="" onClick={() => {
-                                this.setState({ creatingOrJoining: "joining" });
-                                this.showModal();
-                            }}>Join</Button>
-                        </div>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={4} offset={10} >
-                        <div className="homeFormGroup">
-                            <Button size="large" type="" onClick={() => {
-                                this.setState({ creatingOrJoining: "creating" });
-                                this.showModal();
-                            }}>Create Room</Button>
-                        </div>
-                    </Col>
+                    <Row>
+                        <Col span={4} offset={10}>
+                            <h1>
+                                Draw
+                            </h1>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={4} offset={10} >
+                            <div className="homeFormGroup">
+                                <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
+                                <Button size="large" type="" onClick={() => {
+                                    this.setState({ creatingOrJoining: "joining" });
+                                    this.showModal();
+                                }}><Icon type="enter" /></Button>
+                            </div>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={4} offset={10} >
+                            <div className="homeFormGroup">
+                                <Button size="large" type="" onClick={() => {
+                                    this.setState({ creatingOrJoining: "creating" });
+                                    this.showModal();
+                                }}><Icon type="plus" /></Button>
+                            </div>
+                        </Col>
+                    </Row>
                 </Row>
 
             </div>

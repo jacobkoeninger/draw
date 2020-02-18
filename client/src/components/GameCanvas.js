@@ -127,7 +127,7 @@ export default class GameCanvas extends React.Component {
                         canvas: this.saveableCanvas
                     }); */
                 }}                
-                canvasWidth = {1000}
+                canvasWidth = {900}
                 canvasHeight = {500}
                 immediateLoading = {true}
                 disabled={!this.state.isArtist}

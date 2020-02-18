@@ -150,9 +150,12 @@ export class Game {
             //await this.timer;
 
             //console.log('after timer!!!!!!!!!!');
+
+            io.in(this.room).emit('round started', this.round_length);
+
             this.timer = await new Promise(resolve => setTimeout(resolve, this.round_length)); // sleep 
 
-            this.endRound();            
+            this.endRound();
         }
 
     }
