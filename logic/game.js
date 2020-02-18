@@ -72,6 +72,13 @@ var Game = /** @class */ (function () {
             _this.status = "active";
             _this.startRound();
         };
+        this.updateCorrectPlayers = function (player) {
+            _this.correct_players.push(player);
+            _this.updateClients();
+            if (_this.correct_players.length == _this.players.length - 1) {
+                _this.endRound();
+            }
+        };
         this.startRound = function () { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
@@ -82,6 +89,7 @@ var Game = /** @class */ (function () {
                         this.updateCurrentRound();
                         this.updateArtist();
                         this.updateWord();
+                        this.correct_players = [];
                         this.updateClients();
                         console.log('Starting round: ' + this.current_round);
                         //setTimeout(this.endRound, this.round_length);
@@ -98,7 +106,7 @@ var Game = /** @class */ (function () {
         this.status = "lobby";
         this.host = host;
         this.room = room;
-        this.round_length = 5000;
+        this.round_length = 15000;
         this.max_players = 2;
         this.players = [];
         this.words = words;
@@ -112,7 +120,6 @@ var Game = /** @class */ (function () {
             TODO:
             - give points to users
             - start new round
-            - clear correctPlayers
         */
         console.log('Round has ended');
         //FIXME:
@@ -295,12 +302,13 @@ function SiteLogic(server) {
         });
     };
     function findPlayerBySocketId(arr, socketId) {
+        var playerFound = null;
         arr.forEach(function (player) {
             if (player.id == socketId) {
-                return player;
+                playerFound = player;
             }
         });
-        return null;
+        return playerFound;
     }
     var chatMessageSocket = function (socket) {
         socket.on('send message', function (obj) {
@@ -316,13 +324,15 @@ function SiteLogic(server) {
                             var playerFound = findPlayerBySocketId(realGame.players, socket.id);
                             if (playerFound) {
                                 if (!correctPlayerFound) {
-                                    realGame.correct_players.push(playerFound);
                                     console.log(socket.id + " guessed the word");
-                                    realGame.updateClients();
+                                    realGame.updateCorrectPlayers(playerFound);
                                 }
                             }
                             else {
                                 console.log('Player not found');
+                                console.log(socket.id);
+                                console.log(playerFound);
+                                console.log(realGame.players);
                             }
                         }
                     }

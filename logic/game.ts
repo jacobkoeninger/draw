@@ -49,7 +49,7 @@ export class Game {
         this.status = "lobby";
         this.host = host;
         this.room = room;
-        this.round_length = 5000;
+        this.round_length = 15000;
         this.max_players = 2;
         this.players = [];
         this.words = words;
@@ -97,16 +97,26 @@ export class Game {
         this.startRound();
     }
 
+    updateCorrectPlayers = (player: User) => {
+        this.correct_players.push(player);
+        this.updateClients();
+        
+        if(this.correct_players.length == this.players.length - 1){
+            this.endRound();
+        }
+
+    }
+
     endRound() {
         /* 
             TODO:
             - give points to users
             - start new round
-            - clear correctPlayers
         */
 
         console.log('Round has ended');
         //FIXME:
+
         this.startRound();
 
     }
@@ -122,6 +132,8 @@ export class Game {
             this.updateCurrentRound();
             this.updateArtist();
             this.updateWord();
+            this.correct_players = [];
+
             this.updateClients();
     
             console.log('Starting round: ' + this.current_round);
@@ -341,13 +353,14 @@ export default function SiteLogic(server) {
     }
 
     function findPlayerBySocketId(arr: Array<User>, socketId: string){
+        let playerFound = null;
         arr.forEach((player: User) => {
             if(player.id == socketId){
-                return player;
+                playerFound = player;
             }
         });
 
-        return null;
+        return playerFound;
     }
 
     const chatMessageSocket = (socket) => {
@@ -372,13 +385,17 @@ export default function SiteLogic(server) {
                             if(playerFound){
                                 
                                 if(!correctPlayerFound){
-                                    realGame.correct_players.push(playerFound);
+                                    
                                     console.log(socket.id + " guessed the word");
-                                    realGame.updateClients();
+                                    realGame.updateCorrectPlayers(playerFound);
+                                    
                                 }
 
                             } else {
                                 console.log('Player not found');
+                                console.log(socket.id);
+                                console.log(playerFound);
+                                console.log(realGame.players);
                             }
 
 
