@@ -6,6 +6,7 @@ import {
     Button,
     Row,
     Col,
+    Icon,
     notification
 } from 'antd';
 import GameChat  from '../components/GameChat';
@@ -138,7 +139,7 @@ export default class Board extends React.Component {
 
     showTimer = () => {
         if(this.state.time_left){
-            return this.state.time_left / 1000;
+            return <span> <Icon type="clock-circle" /> {this.state.time_left / 1000} </span>;
         } else {
             return;
         }
