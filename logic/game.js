@@ -60,17 +60,20 @@ var Game = /** @class */ (function () {
                 - make sure there are at least 2 players
             */
             if (_this.status === "active") {
-                console.error('Game is already active');
+                io.to(_this.host.id).emit('notification', {
+                    type: 'error',
+                    message: 'Game is already active',
+                    description: ''
+                });
                 return;
             }
             if (_this.players.length < 2) {
-                console.error('Not enough players');
                 io.to(_this.host.id).emit('notification', {
                     type: 'error',
                     message: 'Unable to start game',
                     description: 'Not enough players. At least 2 players needed'
                 });
-                return; //TODO: give error to user in flash message
+                return;
             }
             _this.player_turns = (function () {
                 var players = _this.players;
@@ -299,6 +302,13 @@ function SiteLogic(server) {
         socket.on('joined lobby', function (roomId) {
             var GAME_FOUND = findGame(roomId);
             if (GAME_FOUND) {
+                if (GAME_FOUND.host.id !== socket.id) {
+                    io.to(GAME_FOUND.host.id).emit('notification', {
+                        type: 'info',
+                        message: '[' + socket.nickname + '] has joined your lobby',
+                        description: ''
+                    });
+                }
                 io["in"](roomId).emit('game info', GAME_FOUND);
                 //socket.emit('game info', lobby);
             }
@@ -321,7 +331,7 @@ function SiteLogic(server) {
                     message: 'Unable to start game.',
                     description: 'Please refresh and try again.'
                 });
-                console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
+                //console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
             }
         });
     };
@@ -348,19 +358,13 @@ function SiteLogic(server) {
                             var playerFound = findPlayerBySocketId(realGame.players, socket.id);
                             if (playerFound) {
                                 if (!correctPlayerFound) {
-                                    console.log(socket.nickname + " guessed the word");
                                     io["in"](obj.room).emit('receive message', {
                                         message: socket.nickname + " guessed the word!",
                                         nickname: "[Game]"
                                     });
+                                    //TODO: emit notification to user telling them how many points they received for guessing the word
                                     realGame.updateCorrectPlayers(playerFound);
                                 }
-                            }
-                            else {
-                                console.log('Player not found');
-                                console.log(socket.id);
-                                console.log(playerFound);
-                                console.log(realGame.players);
                             }
                         }
                     }
@@ -388,7 +392,7 @@ function SiteLogic(server) {
                 }
                 return false;
             });
-            if (game.players.length < 2) {
+            if (game.players.length < 2 && game.status == "active") {
                 game.endGame();
             }
             io["in"](game.room).emit('game info', game);
