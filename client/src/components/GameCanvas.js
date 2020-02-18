@@ -15,12 +15,11 @@ export default class GameCanvas extends React.Component {
     
     constructor(props){
         super(props);
-        let canvas = <CanvasDraw />
         /* canvas.onChange = () => {
             console.log('change')
         } */
         this.state = {
-            canvas: canvas,
+            canvas: null,
             socket: props.socket,
             isArtist: false
         }
@@ -98,12 +97,9 @@ export default class GameCanvas extends React.Component {
             if(!this.state.isArtist){
                 if(obj.id != this.state.socket.id){
 
-                    //this.state.canvas.loadSaveData(obj.data);
-                    if(obj.data){
+                    if(this.state.canvas) this.state.canvas.loadSaveData(obj.data);                   
+                    if(this.saveableCanvas) this.saveableCanvas.loadSaveData(obj.data, true);
 
-                        this.saveableCanvas.loadSaveData(obj.data, true);
-                        
-                    }
                 }
                 //console.log(this.saveableCanvas);
             }
