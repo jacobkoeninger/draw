@@ -36,6 +36,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
+var util = require('util');
+var setTimeoutPromise = util.promisify(setTimeout);
 var io;
 var games = [];
 ;
@@ -76,13 +78,17 @@ var Game = /** @class */ (function () {
             _this.correct_players.push(player);
             _this.updateClients();
             if (_this.correct_players.length == _this.players.length - 1) {
-                _this.endRound();
+                //this.endRound();
+                //? FIXME: cancel timer so that the rounds ends immediately when all users guessed correctly before the timer ran out 
+                //this.timer.cancel(); 
+                //clearTimeout(this.timer);
             }
         };
         this.startRound = function () { return __awaiter(_this, void 0, void 0, function () {
+            var _a;
             var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         if (!(this.status == "active")) return [3 /*break*/, 2];
                         this.clearBoards();
@@ -93,12 +99,19 @@ var Game = /** @class */ (function () {
                         this.updateClients();
                         console.log('Starting round: ' + this.current_round);
                         //setTimeout(this.endRound, this.round_length);
+                        //this.timer = setTimeout(() => {console.log('???')}, this.round_length);
+                        //await this.timer;
+                        //console.log('after timer!!!!!!!!!!');
+                        _a = this;
                         return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, _this.round_length); })];
                     case 1:
                         //setTimeout(this.endRound, this.round_length);
-                        _a.sent(); // sleep 
+                        //this.timer = setTimeout(() => {console.log('???')}, this.round_length);
+                        //await this.timer;
+                        //console.log('after timer!!!!!!!!!!');
+                        _a.timer = _b.sent(); // sleep 
                         this.endRound();
-                        _a.label = 2;
+                        _b.label = 2;
                     case 2: return [2 /*return*/];
                 }
             });
@@ -143,8 +156,8 @@ var Game = /** @class */ (function () {
             - choose a random word from this.words
             - make sure it hasn't be chosen before (not in this.used_words)
         */
-        //this.current_word = this.words[Math.floor(Math.random() * this.words.length)]; 
-        this.current_word = "Test";
+        this.current_word = this.words[Math.floor(Math.random() * this.words.length)];
+        //this.current_word = "Test";
     };
     Game.prototype.updateArtist = function () {
         /*
@@ -181,8 +194,6 @@ var Game = /** @class */ (function () {
         io["in"](this.room).emit('clear boards');
     };
     Game.prototype.updateClients = function () {
-        console.log('updateClients');
-        //TODO: exclude current word from this 
         io["in"](this.room).emit('game info', {
             current_artist: this.current_artist,
             current_round: this.current_round,
@@ -324,7 +335,11 @@ function SiteLogic(server) {
                             var playerFound = findPlayerBySocketId(realGame.players, socket.id);
                             if (playerFound) {
                                 if (!correctPlayerFound) {
-                                    console.log(socket.id + " guessed the word");
+                                    console.log(socket.nickname + " guessed the word");
+                                    io["in"](obj.room).emit('receive message', {
+                                        message: socket.nickname + " guessed the word!",
+                                        nickname: "[Game]"
+                                    });
                                     realGame.updateCorrectPlayers(playerFound);
                                 }
                             }

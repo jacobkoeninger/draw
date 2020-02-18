@@ -1,5 +1,5 @@
 import React from 'react';
-import io from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
 import {Redirect} from "react-router-dom";
 
 import {
@@ -44,6 +44,7 @@ export default class Home extends React.Component {
         if(this.state.nickname !== ""){
 
             this.props.setNickname(this.state.nickname);
+            this.state.socket.emit('send-nickname', this.state.nickname);
 
             if(this.state.creatingOrJoining == "joining"){
                 this.joinRoom();
@@ -65,7 +66,7 @@ export default class Home extends React.Component {
     componentDidMount = () => {
         //console.log(this.props.user)
     }
-    
+
     joinRoom = () => {
         if(this.state.nickname != "" && this.state.roomNumber != "") {
             this.state.socket.emit('join game', {roomId: this.state.roomNumber, user: this.props.user} );

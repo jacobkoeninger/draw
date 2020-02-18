@@ -1,5 +1,6 @@
+const util = require('util');
+const setTimeoutPromise = util.promisify(setTimeout);
 import { Socket } from "dgram";
-import { countdown } from "countdown-node";
 
 var io;
 
@@ -26,7 +27,7 @@ export class Game {
         Ideas:
         - Setting for have X amount of guesses allotedd per round?
         */
-
+    public timer;
     public host: User; // user obj
     public room: string;
     public status: string;
@@ -102,7 +103,11 @@ export class Game {
         this.updateClients();
         
         if(this.correct_players.length == this.players.length - 1){
-            this.endRound();
+            //this.endRound();
+            
+            //? FIXME: cancel timer so that the rounds ends immediately when all users guessed correctly before the timer ran out 
+            //this.timer.cancel(); 
+            //clearTimeout(this.timer);
         }
 
     }
@@ -138,7 +143,13 @@ export class Game {
     
             console.log('Starting round: ' + this.current_round);
             //setTimeout(this.endRound, this.round_length);
-            await new Promise(resolve => setTimeout(resolve, this.round_length)); // sleep 
+            
+            //this.timer = setTimeout(() => {console.log('???')}, this.round_length);
+            //await this.timer;
+
+            //console.log('after timer!!!!!!!!!!');
+            this.timer = await new Promise(resolve => setTimeout(resolve, this.round_length)); // sleep 
+
             this.endRound();            
         }
 
@@ -167,8 +178,8 @@ export class Game {
             - make sure it hasn't be chosen before (not in this.used_words)
         */
         
-        //this.current_word = this.words[Math.floor(Math.random() * this.words.length)]; 
-        this.current_word = "Test";
+        this.current_word = this.words[Math.floor(Math.random() * this.words.length)]; 
+        //this.current_word = "Test";
 
     }
 
@@ -211,10 +222,6 @@ export class Game {
     }
 
     updateClients() {
-        console.log('updateClients');
-
-        //TODO: exclude current word from this 
-
         io.in(this.room).emit('game info', {
             current_artist: this.current_artist,
             current_round: this.current_round,
@@ -386,7 +393,11 @@ export default function SiteLogic(server) {
                                 
                                 if(!correctPlayerFound){
                                     
-                                    console.log(socket.id + " guessed the word");
+                                    console.log(socket.nickname + " guessed the word");
+                                    io.in(obj.room).emit('receive message', {
+                                        message: socket.nickname + " guessed the word!",
+                                        nickname: "[Game]"
+                                    });
                                     realGame.updateCorrectPlayers(playerFound);
                                     
                                 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
     List,
+    Icon,
     Avatar
 } from 'antd';
 
@@ -11,7 +12,8 @@ export default class UserList extends React.Component {
         this.state = {
             users: props.users,
             socket: props.socket,
-            artist: null
+            artist: null,
+            correctPlayers: []
         }
     }
 
@@ -24,11 +26,31 @@ export default class UserList extends React.Component {
         }
     }
 
-    getNickname = () => {
+    getArtistNickname = () => {
         if(this.state.artist){
             return this.state.artist.nickname;
         } else {
             return '';
+        }
+    }
+
+    getStar = (user) => {
+        if(this.state.correctPlayers){
+            let playerFound;
+
+            this.state.correctPlayers.forEach((player) => {
+                if(player.id === user.id){
+                    playerFound = player;
+                }
+            });
+
+            if(playerFound){
+                return <Icon type="star" />;
+            } else {
+                return;
+            }
+
+
         }
     }
 
@@ -37,21 +59,23 @@ export default class UserList extends React.Component {
         this.state.socket.on('game info', (game) => {
             this.setState({
                 users: game.players,
-                artist: game.current_artist
+                artist: game.current_artist,
+                correctPlayers: game.correct_players
             });
         });
 
         return(
             <div>
-                <h4> { this.getNickname() } </h4>
+                <h4> { this.getArtistNickname() } </h4>
                 <List
                     itemLayout="vertical"
                     dataSource={this.state.users}
-                    renderItem={item => (
+                    renderItem={user => (
                     <List.Item>
+                        { /* this.getStar(user.id) */ }
                         <List.Item.Meta
                         avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                        title={<a href="#">{item.nickname}</a>}
+                        title={<a href="#">{user.nickname}</a>}
                         />
                     </List.Item>
                     )}
