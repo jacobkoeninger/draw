@@ -121,9 +121,9 @@ export default class GameCanvas extends React.Component {
                 ref={canvasDraw => (this.saveableCanvas = canvasDraw)}
                 onChange={(canvasDraw) => {
                     this.canvasUpdate(canvasDraw, this.saveableCanvas);
-                    this.setState({
+                    /* this.setState({
                         canvas: this.saveableCanvas
-                    });
+                    }); */
                 }}                
                 canvasWidth = {1000}
                 canvasHeight = {500}
