@@ -170,7 +170,10 @@ export class Game {
             - show results
             - maybe redirect all users to Home
         */
+    
         console.log('Game has ended');
+        this.status = "ended";
+        this.updateClients();
     }
 
     clearBoards() {
@@ -321,6 +324,9 @@ export default function SiteLogic(server) {
                 }
                 return false;
             });
+            if(game.players.length < 2){
+                game.endGame();
+            }
             io.in(game.room).emit('game info', game);
         });
     };

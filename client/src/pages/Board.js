@@ -54,8 +54,9 @@ export default class Board extends React.Component {
             }
             if(game.status == "active"){
                 this.setState({ artist: game.current_artist });
+            } else if (game.status == "ended") {
+                this.setState({ kickUser: true });
             }
-
         });
         
         if(this.props.user.nickname == "" || this.props.user.room == null){

@@ -118,6 +118,8 @@ var Game = /** @class */ (function () {
             - maybe redirect all users to Home
         */
         console.log('Game has ended');
+        this.status = "ended";
+        this.updateClients();
     };
     Game.prototype.clearBoards = function () {
         io["in"](this.room).emit('clear boards');
@@ -246,6 +248,9 @@ function SiteLogic(server) {
                 }
                 return false;
             });
+            if (game.players.length < 2) {
+                game.endGame();
+            }
             io["in"](game.room).emit('game info', game);
         });
     };
