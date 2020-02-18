@@ -97,8 +97,13 @@ export default class GameCanvas extends React.Component {
             //console.log(obj);
             if(!this.state.isArtist){
                 if(obj.id != this.state.socket.id){
+
                     //this.state.canvas.loadSaveData(obj.data);
-                    this.saveableCanvas.loadSaveData(obj.data);
+                    if(obj.data){
+
+                        this.saveableCanvas.loadSaveData(obj.data, true);
+                        
+                    }
                 }
                 //console.log(this.saveableCanvas);
             }
@@ -109,7 +114,7 @@ export default class GameCanvas extends React.Component {
             if(this.saveableCanvas){
                 this.saveableCanvas.clear();
             } else if (this.state.canvas){
-                this.state.canvas.clear();
+                //this.state.canvas.clear();
             }
             
         });
