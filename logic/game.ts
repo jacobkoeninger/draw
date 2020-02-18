@@ -13,7 +13,13 @@ interface User {
 };
 
 
-
+function notifySocket(type: string, message: string, description: string, socketId: string){
+    io.to(socketId).emit('notification', {
+        type: type,
+        message: message,
+        description: description
+    });
+}
 
 export class Game {
     
@@ -72,30 +78,16 @@ export class Game {
 
     startGame = () => {
         console.log('Starting game: ' + this.room);
-        /* 
-            TODO:
-            - set status to active
-            - set player_turns (randomize all of the game's players into the array)
-            - run start round
-            - make sure there are at least 2 players
-        */
 
         if (this.status === "active") {
             
-            io.to(this.host.id).emit('notification', {
-                type: 'error',
-                message: 'Game is already active',
-                description: ''
-            });
+            notifySocket('error', "Game is already active", "", this.host.id);            
 
             return;
         }
         if (this.players.length < 2) {            
-            io.to(this.host.id).emit('notification', {
-                type: 'error',
-                message: 'Unable to start game',
-                description: 'Not enough players. At least 2 players needed'
-            });
+
+            notifySocket('error', 'Unable to start game', 'Not enough players. At least 2 players needed', this.host.id);
 
             return;
         }
@@ -127,7 +119,6 @@ export class Game {
         /* 
             TODO:
             - give points to users
-            - start new round
         */
 
         console.log('Round has ended');
@@ -212,8 +203,7 @@ export class Game {
             this.current_artist = this.player_turns[0];
         }
 
-        console.log('Current artist: ' + this.current_artist.nickname);
-
+        notifySocket('info', "It's your turn to draw!", "", this.current_artist.id);
     }
 
     endGame() {
@@ -268,13 +258,7 @@ export default function SiteLogic(server) {
         const game = findGame(room);
 
         if(!game) {
-
-            socket.emit('notification', {
-                type: 'error',
-                message: 'Unable to join game',
-                description: 'Game not found with id "' + room + '".'
-            });
-
+            notifySocket('error', 'Unable to join game', 'Game not found with id "' + room + '".', socket.id);
             return;
         }
 
@@ -354,11 +338,7 @@ export default function SiteLogic(server) {
             if(GAME_FOUND) {
 
                 if ( GAME_FOUND.host.id !== socket.id ) {
-                    io.to(GAME_FOUND.host.id).emit('notification', {
-                        type: 'info',
-                        message: '[' + socket.nickname + '] has joined your lobby',
-                        description: ''
-                    });
+                    notifySocket('info', '[' + socket.nickname + '] has joined your lobby', '', GAME_FOUND.host.id);                    
                 }
                 io.in(roomId).emit('game info', GAME_FOUND);
                 //socket.emit('game info', lobby);
@@ -377,12 +357,7 @@ export default function SiteLogic(server) {
                     console.log(socket.id + ' is not host')
                 }
             } else {
-
-                socket.emit('notification', {
-                    type: 'error',
-                    message: 'Unable to start game.',
-                    description: 'Please refresh and try again.'
-                });
+                notifySocket('error', 'Unable to start game.', 'Please refresh and try again.', socket.id);
 
                 //console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
 
@@ -527,6 +502,8 @@ export default function SiteLogic(server) {
 
     io.on('connection', function(socket){
         
+        socket.score = 0;
+
         socket.emit('sendId', socket.id);
 
         socket.on('disconnect', _ => handleDisconnect(socket.id));
