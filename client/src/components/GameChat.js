@@ -31,7 +31,8 @@ export default class GameChat extends React.Component {
 
     sendMessage = () => {
         this.state.socket.emit('send message', ({
-            message: this.state.message
+            message: this.state.message,
+            room: this.props.game.room
         }));
     }
 

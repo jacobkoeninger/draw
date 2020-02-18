@@ -244,10 +244,26 @@ function SiteLogic(server) {
     };
     var chatMessageSocket = function (socket) {
         socket.on('send message', function (obj) {
-            io["in"](Object.keys(socket.rooms)[0]).emit('receive message', {
-                message: obj.message,
-                nickname: socket.nickname
-            });
+            // do not emit receive message if the word is correct 
+            // Object.keys(socket.rooms)[0]
+            var realGame = findGame(obj.room);
+            if (realGame) {
+                if (realGame.current_artist.id != socket.id) {
+                    if (realGame.current_artist.id != socket.id) {
+                    }
+                    if (obj.message === realGame.current_word) {
+                        if (realGame.status == "active") {
+                            console.log(socket.nickname + " guessed the word");
+                        }
+                    }
+                    else {
+                        io["in"](obj.room).emit('receive message', {
+                            message: obj.message,
+                            nickname: socket.nickname
+                        });
+                    }
+                }
+            }
         });
     };
     var handleDisconnect = function (socketId) {
