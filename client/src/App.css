@@ -1,13 +1,14 @@
 @import '~antd/dist/antd.css';
 
 .homeFormGroup {
-  width:10%;
-  margin:1% 0 0 0;
-  border-bottom:1px solid #ddd;
+  width:100%;
+  margin:10% 0 0 0;
   padding-bottom:1%;
 }
 .homeFormGroup input {
   margin:5% 0;
+  height: 50px;
+  font-size: 120%;
 }
 .chat {
   margin:2% 0;

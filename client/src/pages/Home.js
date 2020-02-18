@@ -6,7 +6,9 @@ import {
     Button,
     Input,
     Modal,
-    notification
+    notification,
+    Row,
+    Col
 } from 'antd';
 
 export default class Home extends React.Component {
@@ -67,16 +69,13 @@ export default class Home extends React.Component {
     componentDidMount = () => {
         //console.log(this.props.user)
 
-        this.state.socket.on('notification', (obj) => {
-            // obj.type obj.message, obj.description
-            console.log('a', obj)
-            
+        this.state.socket.on('notification', (obj) => {            
             notification[obj.type]({
                 message: obj.message,
+                placement: "bottomRight",
                 description:
                   obj.description,
-            });
-            
+            });            
         })
 
     }
@@ -145,20 +144,25 @@ export default class Home extends React.Component {
                     }} placeholder="John Smith" suffix="Nickname" />
                 </Modal>
                 
-                <div className="homeFormGroup">
-                    <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
-                    <Button type="primary" onClick={() => {
-                        this.setState({ creatingOrJoining: "joining" });
-                        this.showModal();
-                    }}>Join</Button>
-                </div>
+                <Row>
+                    <Col span={4} offset={10} >
+                        <div className="homeFormGroup">
+                            <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
+                            <Button size="large" type="primary" onClick={() => {
+                                this.setState({ creatingOrJoining: "joining" });
+                                this.showModal();
+                            }}>Join</Button>
+                        </div>
+        
+                        <div className="homeFormGroup">
+                            <Button size="large" type="primary" onClick={() => {
+                                this.setState({ creatingOrJoining: "creating" });
+                                this.showModal();
+                            }}>Create Room</Button>
+                        </div>
+                    </Col>
+                </Row>
 
-                <div className="homeFormGroup">
-                    <Button type="primary" onClick={() => {
-                        this.setState({ creatingOrJoining: "creating" });
-                        this.showModal();
-                    }}>Create Room</Button>
-                </div>
             </div>
         );
     }
