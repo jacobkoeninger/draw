@@ -95,16 +95,23 @@ export default class GameCanvas extends React.Component {
 
         this.state.socket.on('updateAllCanvases', (obj) => {
             //console.log(obj);
-            if(obj.id != this.state.socket.id){
-                //this.state.canvas.loadSaveData(obj.data);
-                this.saveableCanvas.loadSaveData(obj.data);
+            if(!this.state.isArtist){
+                if(obj.id != this.state.socket.id){
+                    //this.state.canvas.loadSaveData(obj.data);
+                    this.saveableCanvas.loadSaveData(obj.data);
+                }
+                //console.log(this.saveableCanvas);
             }
-            //console.log(this.saveableCanvas);
         });
 
         this.state.socket.on('clear boards', () => {
             //FIXME: breaking stuff
-            //this.saveableCanvas.clear();
+            if(this.saveableCanvas){
+                this.saveableCanvas.clear();
+            } else if (this.state.canvas){
+                this.state.canvas.clear();
+            }
+            
         });
         
         return(
