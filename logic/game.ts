@@ -86,6 +86,13 @@ export class Game {
         }
         if (this.players.length < 2) {
             console.error('Not enough players');
+            
+            io.to(this.host.id).emit('notification', {
+                type: 'error',
+                message: 'Unable to start game',
+                description: 'Not enough players. At least 2 players needed'
+            });
+
             return; //TODO: give error to user in flash message
         }
 
@@ -260,12 +267,10 @@ export default function SiteLogic(server) {
 
             socket.emit('notification', {
                 type: 'error',
-                message: 'Error',
+                message: 'Unable to join game',
                 description: 'Game not found with id "' + room + '".'
             });
 
-            console.error("Game not found with room ID: " + room);
-            // TODO: tell user game was not found with flash message
             return;
         }
 
@@ -360,7 +365,15 @@ export default function SiteLogic(server) {
                     console.log(socket.id + ' is not host')
                 }
             } else {
+
+                socket.emit('notification', {
+                    type: 'error',
+                    message: 'Unable to start game.',
+                    description: 'Please refresh and try again.'
+                });
+
                 console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
+
             }
             
         });
