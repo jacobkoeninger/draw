@@ -52,10 +52,6 @@ var Game = /** @class */ (function () {
         /*
             TODO:
             - clear board
-            - update current round
-            - update artist
-            - update current word
-            - emit out to users the new info so they can update their clients accordingly
         */
         this.clearBoards();
         this.updateCurrentRound();
@@ -89,13 +85,15 @@ var Game = /** @class */ (function () {
             - choose a random word from this.words
             - make sure it hasn't be chosen before (not in this.used_words)
         */
-        this.current_word = this.words[Math.floor(Math.random() * this.words.length - 1)];
+        //this.current_word = this.words[Math.floor(Math.random() * this.words.length)]; 
+        this.current_word = "Test";
     };
     Game.prototype.updateArtist = function () {
         /*
             TODO:
             - only allow artist to be able to draw
             - artist no longer can type in chat
+            - give only artist the current word
         */
         if (this.current_artist) {
             var currentArtistIndex = this.player_turns.indexOf(this.current_artist); // FIXME: make sure this works
@@ -126,7 +124,19 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.updateClients = function () {
         console.log('updateClients');
-        io["in"](this.room).emit('game info', this);
+        //TODO: exclude current word from this 
+        io["in"](this.room).emit('game info', {
+            current_artist: this.current_artist,
+            current_round: this.current_round,
+            host: this.host,
+            max_players: this.max_players,
+            max_rounds: this.max_rounds,
+            player_turns: this.player_turns,
+            players: this.players,
+            room: this.room,
+            round_length: this.round_length,
+            status: this.status
+        });
     };
     return Game;
 }());
@@ -289,6 +299,19 @@ function SiteLogic(server) {
         if (!userFound)
             onlineUsers.push(user);
     }
+    var requestWordSocket = function (socket) {
+        socket.on('request word', function (game) {
+            var realGame = findGame(game.room);
+            if (realGame.current_artist) {
+                if (realGame.current_artist.id == socket.id) {
+                    socket.emit('get word', realGame.current_word);
+                }
+                else {
+                    socket.emit('get word', null);
+                }
+            }
+        });
+    };
     io.on('connection', function (socket) {
         socket.emit('sendId', socket.id);
         socket.on('disconnect', function (_) { return handleDisconnect(socket.id); });
@@ -300,6 +323,7 @@ function SiteLogic(server) {
         getLobbyInfoSocket(socket);
         startGameSocket(socket);
         chatMessageSocket(socket);
+        requestWordSocket(socket);
     });
 }
 exports["default"] = SiteLogic;

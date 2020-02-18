@@ -25,7 +25,9 @@ export default class Board extends React.Component {
             kickUser: false,
             game: null,
             isHost: false,
-            artist: null
+            artist: null,
+            current_round: null,
+            current_word: null
         }
     }
 
@@ -40,6 +42,12 @@ export default class Board extends React.Component {
     componentDidMount = () => {
 
         this.state.socket.emit('joined lobby', this.props.user.room);
+
+        this.state.socket.on('get word', (word) => {
+            this.setState({
+                current_word: word
+            });            
+        });
 
         this.state.socket.on('game info', (game) => {
             // get info to find out if User is host. if host, then show play button. 
@@ -57,6 +65,14 @@ export default class Board extends React.Component {
             } else if (game.status == "ended") {
                 this.setState({ kickUser: true });
             }
+
+            if(game.current_round != this.state.current_round){
+
+                this.state.socket.emit('request word', game);
+
+                this.setState({ current_round: game.current_round });
+            }
+
         });
         
         if(this.props.user.nickname == "" || this.props.user.room == null){
@@ -79,6 +95,12 @@ export default class Board extends React.Component {
         }
     }
 
+    showCurrentWord = () => {
+        if(this.state.current_word){
+            return this.state.current_word;
+        }
+    }
+
     showPlayers = () => {
         if(this.state.game){
             const players = this.state.game.players;
@@ -94,14 +116,17 @@ export default class Board extends React.Component {
         return (
             <div>
                 <Row>
-                    Board - {this.props.user.room}
+                    <p>Board - {this.props.user.room}</p>
+                    <h2>
+                        { this.showCurrentWord() }
+                    </h2>
                     <div>
                         { this.showStartButton() }
                     </div>
                     <br />
                 </Row>
                 <Row>
-                
+
                 </Row>
                 <Row>
                     <Col span={15} >

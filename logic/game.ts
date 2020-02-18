@@ -54,7 +54,7 @@ export class Game {
         this.max_rounds = max_rounds;
         this.current_round = 0;
         this.lobby();
-    }
+    }   
     
     lobby = () => {
         /* 
@@ -95,10 +95,6 @@ export class Game {
         /* 
             TODO:
             - clear board
-            - update current round
-            - update artist
-            - update current word
-            - emit out to users the new info so they can update their clients accordingly
         */
        this.clearBoards();
        this.updateCurrentRound();
@@ -130,7 +126,7 @@ export class Game {
             this.current_round = this.current_round + 1;            
        }
         
-    }    
+    }
 
     updateWord() {
         /* 
@@ -139,7 +135,8 @@ export class Game {
             - make sure it hasn't be chosen before (not in this.used_words)
         */
         
-        this.current_word = this.words[Math.floor(Math.random() * this.words.length - 1)];
+        //this.current_word = this.words[Math.floor(Math.random() * this.words.length)]; 
+        this.current_word = "Test";
 
     }
 
@@ -148,6 +145,7 @@ export class Game {
             TODO:
             - only allow artist to be able to draw
             - artist no longer can type in chat
+            - give only artist the current word
         */
         if(this.current_artist){
             const currentArtistIndex = this.player_turns.indexOf(this.current_artist); // FIXME: make sure this works
@@ -182,7 +180,21 @@ export class Game {
 
     updateClients() {
         console.log('updateClients');
-        io.in(this.room).emit('game info', this);
+
+        //TODO: exclude current word from this 
+
+        io.in(this.room).emit('game info', {
+            current_artist: this.current_artist,
+            current_round: this.current_round,
+            host: this.host,
+            max_players: this.max_players,
+            max_rounds: this.max_rounds,
+            player_turns: this.player_turns,
+            players: this.players,
+            room: this.room,
+            round_length: this.round_length,            
+            status: this.status            
+        });
     }
 
 }
@@ -212,7 +224,7 @@ export default function SiteLogic(server) {
 
         // Check if socket is already in the game. If it is, then update that player
         let playerFound: User;
-        game.players.forEach((player, index) => {
+        game.players.forEach((player: User, index: number) => {
             if(player.id == socket.id) {
                 playerFound == player;
                 game.players[index] = user;
@@ -365,6 +377,21 @@ export default function SiteLogic(server) {
         if (!userFound) onlineUsers.push(user);
     }
 
+    const requestWordSocket = (socket) => {
+
+        socket.on('request word', (game) => {
+            const realGame: Game = findGame(game.room);
+            if(realGame.current_artist){
+                if(realGame.current_artist.id == socket.id){
+                    socket.emit('get word', realGame.current_word);
+                } else {
+                    socket.emit('get word', null);
+                }
+            }
+        });
+
+    };
+
     io.on('connection', function(socket){
         
         socket.emit('sendId', socket.id);
@@ -386,6 +413,8 @@ export default function SiteLogic(server) {
         startGameSocket(socket);
 
         chatMessageSocket(socket);
+
+        requestWordSocket(socket);
 
     });
     
