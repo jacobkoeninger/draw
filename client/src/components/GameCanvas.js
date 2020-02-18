@@ -84,6 +84,8 @@ export default class GameCanvas extends React.Component {
             //console.log('Canvas', data.getSaveData());
             this.setState({canvas: canvas});
             this.state.socket.emit('updateCanvas', {
+                //TODO: compress data either here or on the server 
+                // https://github.com/pieroxy/lz-string
                 'data': data.getSaveData(),
                 'room': this.props.user.room
             });
@@ -127,7 +129,7 @@ export default class GameCanvas extends React.Component {
                 }}                
                 canvasWidth = {1000}
                 canvasHeight = {500}
-                loadTimeOffset = {5}
+                immediateLoading = {true}
                 disabled={!this.state.isArtist}
             />
             <Button type="ghost" onClick={() => {
