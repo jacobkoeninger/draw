@@ -328,21 +328,13 @@ export default function SiteLogic(server) {
             const realGame: Game = findGame(obj.room);
             
             if(realGame){
-                if(realGame.current_artist.id != socket.id){
-                    
-                    if(realGame.current_artist.id != socket.id){
-                        
-                    }
+                if(realGame.current_artist && realGame.current_artist.id != socket.id){
 
                     
                     if(obj.message === realGame.current_word){
-                        if(realGame.status == "active"){
-                            
+                        if(realGame.status == "active"){                   
                                 
-                                console.log(socket.nickname + " guessed the word");
-                                
-                            
-
+                            console.log(socket.id + " guessed the word");
 
                         }
                     } else {
@@ -354,6 +346,11 @@ export default function SiteLogic(server) {
 
                     }
                 
+                } else {
+                    io.in(obj.room).emit('receive message', {
+                        message: obj.message,
+                        nickname: socket.nickname
+                    });
                 }
             }
 

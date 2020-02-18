@@ -34,6 +34,9 @@ export default class GameChat extends React.Component {
             message: this.state.message,
             room: this.props.game.room
         }));
+        this.setState({
+            message: ""
+        });
     }
 
     componentDidUpdate = () => {
@@ -105,6 +108,7 @@ export default class GameChat extends React.Component {
                     onChange={(e) => this.setState({
                         message: e.target.value
                     })}
+                    value={this.state.message}
                 />
                 <Button
                     type="primary"
