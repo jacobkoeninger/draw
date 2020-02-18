@@ -1,4 +1,5 @@
 import { Socket } from "dgram";
+import { countdown } from "countdown-node";
 
 var io;
 
@@ -29,12 +30,14 @@ export class Game {
     public host: User; // user obj
     public room: string;
     public status: string;
-    public round_length: number; // in seconds
+    public round_length: number; // in ms
     public max_rounds: number;
     public max_players: number;
     public players: Array<User>;
     public words: Array<string>;
     public words_used: Array<string>;
+
+    public correct_players: Array<User>;
     
     public current_round: number;
     public current_artist: User;
@@ -46,7 +49,7 @@ export class Game {
         this.status = "lobby";
         this.host = host;
         this.room = room;
-        this.round_length = 60;
+        this.round_length = 5000;
         this.max_players = 2;
         this.players = [];
         this.words = words;
@@ -57,6 +60,9 @@ export class Game {
     }   
     
     lobby = () => {
+
+        
+
         /* 
             TODO:
             - start game when host clicks start button
@@ -91,28 +97,42 @@ export class Game {
         this.startRound();
     }
 
-    startRound() {
-        /* 
-            TODO:
-            - clear board
-        */
-       this.clearBoards();
-       this.updateCurrentRound();
-       this.updateArtist();
-       this.updateWord();
-       this.updateClients();
-    }
-
     endRound() {
         /* 
             TODO:
             - give points to users
             - start new round
+            - clear correctPlayers
         */
 
         console.log('Round has ended');
+        //FIXME:
+        this.startRound();
 
     }
+
+    startRound = async () => {
+        /* 
+            TODO:
+            - clear board
+        */
+
+        if(this.status == "active"){
+            this.clearBoards();
+            this.updateCurrentRound();
+            this.updateArtist();
+            this.updateWord();
+            this.updateClients();
+    
+            console.log('Starting round: ' + this.current_round);
+            //setTimeout(this.endRound, this.round_length);
+            await new Promise(resolve => setTimeout(resolve, this.round_length)); // sleep 
+            this.endRound();            
+        }
+
+    }
+
+    
 
     updateCurrentRound() {
         /* 
@@ -192,8 +212,9 @@ export class Game {
             player_turns: this.player_turns,
             players: this.players,
             room: this.room,
-            round_length: this.round_length,            
-            status: this.status            
+            round_length: this.round_length,
+            status: this.status,
+            correct_players: this.correct_players
         });
     }
 
@@ -319,11 +340,23 @@ export default function SiteLogic(server) {
         });
     }
 
+    function findPlayerBySocketId(arr: Array<User>, socketId: string){
+        arr.forEach((player: User) => {
+            if(player.id == socketId){
+                return player;
+            }
+        });
+
+        return null;
+    }
+
     const chatMessageSocket = (socket) => {
         socket.on('send message', (obj) => {
             // do not emit receive message if the word is correct 
             
             // Object.keys(socket.rooms)[0]
+
+            // TODO: do not allow typing if user is in correct_players
             
             const realGame: Game = findGame(obj.room);
             
@@ -332,9 +365,22 @@ export default function SiteLogic(server) {
 
                     
                     if(obj.message === realGame.current_word){
-                        if(realGame.status == "active"){                   
+                        if(realGame.status == "active"){                 
+                            
+                            const correctPlayerFound = findPlayerBySocketId(realGame.correct_players, socket.id);
+                            const playerFound = findPlayerBySocketId(realGame.players, socket.id);
+                            if(playerFound){
                                 
-                            console.log(socket.id + " guessed the word");
+                                if(!correctPlayerFound){
+                                    realGame.correct_players.push(playerFound);
+                                    console.log(socket.id + " guessed the word");
+                                    realGame.updateClients();
+                                }
+
+                            } else {
+                                console.log('Player not found');
+                            }
+
 
                         }
                     } else {
