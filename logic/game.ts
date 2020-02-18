@@ -159,6 +159,9 @@ export class Game {
         } else {
             this.current_artist = this.player_turns[0];
         }
+
+        console.log('Current artist: ' + this.current_artist.nickname);
+
     }
 
     endGame() {
@@ -175,6 +178,7 @@ export class Game {
     }
 
     updateClients() {
+        console.log('updateClients');
         io.in(this.room).emit('game info', this);
     }
 

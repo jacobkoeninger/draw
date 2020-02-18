@@ -41,6 +41,20 @@ export default class GameCanvas extends React.Component {
 
     componentDidMount() {
         
+        this.state.socket.on('game info', (game) => {
+            if(game.current_artist){
+                if(game.current_artist.id === this.state.socket.id){
+                    this.setState({
+                        isArtist: true
+                    });
+                } else {
+                    this.setState({
+                        isArtist: false
+                    });
+                }
+            }
+        });
+
         /* this.state.socket.on('connection', (socket) => {
             console.log('connected');
         }); */
@@ -67,12 +81,14 @@ export default class GameCanvas extends React.Component {
 
 
     canvasUpdate = (data, canvas) => {
-        //console.log('Canvas', data.getSaveData());
-        this.setState({canvas: canvas});
-        this.state.socket.emit('updateCanvas', {
-            'data': data.getSaveData(),
-            'room': this.props.user.room
-        });        
+        if(this.state.isArtist){
+            //console.log('Canvas', data.getSaveData());
+            this.setState({canvas: canvas});
+            this.state.socket.emit('updateCanvas', {
+                'data': data.getSaveData(),
+                'room': this.props.user.room
+            });
+        }
     }
 
     render() {
@@ -80,8 +96,8 @@ export default class GameCanvas extends React.Component {
         this.state.socket.on('updateAllCanvases', (obj) => {
             //console.log(obj);
             if(obj.id != this.state.socket.id){
-                this.state.canvas.loadSaveData(obj.data);
-                //this.saveableCanvas.loadSaveData(obj.data);
+                //this.state.canvas.loadSaveData(obj.data);
+                this.saveableCanvas.loadSaveData(obj.data);
             }
             //console.log(this.saveableCanvas);
         });

@@ -109,6 +109,7 @@ var Game = /** @class */ (function () {
         else {
             this.current_artist = this.player_turns[0];
         }
+        console.log('Current artist: ' + this.current_artist.nickname);
     };
     Game.prototype.endGame = function () {
         /*
@@ -122,6 +123,7 @@ var Game = /** @class */ (function () {
         io["in"](this.room).emit('clear boards');
     };
     Game.prototype.updateClients = function () {
+        console.log('updateClients');
         io["in"](this.room).emit('game info', this);
     };
     return Game;

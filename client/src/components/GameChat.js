@@ -36,10 +36,10 @@ export default class GameChat extends React.Component {
     }
 
     componentDidUpdate = () => {
-        console.log('chat updated')
+        //console.log('chat updated')
         if(this.props.artist){
             if (this.props.artist.id === this.state.socket.id){
-                console.log('I am artist')
+                //console.log('I am artist')
             }
             /* if(this.props.artist.id == this.state.socket.id){
                 this.setState({
