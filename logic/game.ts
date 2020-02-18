@@ -257,6 +257,13 @@ export default function SiteLogic(server) {
         const game = findGame(room);
 
         if(!game) {
+
+            socket.emit('notification', {
+                type: 'error',
+                message: 'Error',
+                description: 'Game not found with id "' + room + '".'
+            });
+
             console.error("Game not found with room ID: " + room);
             // TODO: tell user game was not found with flash message
             return;
@@ -495,7 +502,6 @@ export default function SiteLogic(server) {
         });
 
     };
-
 
     io.on('connection', function(socket){
         

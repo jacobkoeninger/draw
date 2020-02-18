@@ -6,6 +6,7 @@ import {
     Button,
     Input,
     Modal,
+    notification
 } from 'antd';
 
 export default class Home extends React.Component {
@@ -65,6 +66,19 @@ export default class Home extends React.Component {
 
     componentDidMount = () => {
         //console.log(this.props.user)
+
+        this.state.socket.on('notification', (obj) => {
+            // obj.type obj.message, obj.description
+            console.log('a', obj)
+            
+            notification[obj.type]({
+                message: obj.message,
+                description:
+                  obj.description,
+            });
+            
+        })
+
     }
 
     joinRoom = () => {

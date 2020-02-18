@@ -6,6 +6,7 @@ import {
     Button,
     Row,
     Col,
+    notification
 } from 'antd';
 import GameChat  from '../components/GameChat';
 import UserList from '../components/UserList';
@@ -31,6 +32,9 @@ export default class Board extends React.Component {
         }
     }
 
+
+
+
     showUsers = () => {
         if(this.state.game) {
             return <UserList artist={this.state.artist} users={this.state.game.players} socket={this.state.socket} />
@@ -40,6 +44,8 @@ export default class Board extends React.Component {
     }
 
     componentDidMount = () => {
+
+        
 
         this.state.socket.emit('joined lobby', this.props.user.room);
 
