@@ -19,3 +19,6 @@
 .userList {
   margin-left:10%;
 }
+.create_game_modal input {
+  margin: 2% 0;
+}
