@@ -409,8 +409,8 @@ export default function SiteLogic(server) {
                 if(realGame.current_artist && realGame.current_artist.id != socket.id){
 
                     
-                    if(obj.message === realGame.current_word){
-                        if(realGame.status == "active"){                 
+                    if(obj.message.toLowerCase() === realGame.current_word.toLowerCase()){
+                        if(realGame.status == "active"){
                             
                             const correctPlayerFound = findPlayerBySocketId(realGame.correct_players, socket.id);
                             const playerFound = findPlayerBySocketId(realGame.players, socket.id);

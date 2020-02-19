@@ -340,7 +340,7 @@ function SiteLogic(server) {
             var realGame = findGame(obj.room);
             if (realGame) {
                 if (realGame.current_artist && realGame.current_artist.id != socket.id) {
-                    if (obj.message === realGame.current_word) {
+                    if (obj.message.toLowerCase() === realGame.current_word.toLowerCase()) {
                         if (realGame.status == "active") {
                             var correctPlayerFound = findPlayerBySocketId(realGame.correct_players, socket.id);
                             var playerFound = findPlayerBySocketId(realGame.players, socket.id);
