@@ -10,6 +10,7 @@ interface User {
     room: string;
     nickname: string;
     id: string;
+    points: number;
 };
 
 
@@ -84,6 +85,8 @@ export class Game {
     startGame = () => {
         console.log('Starting game: ' + this.room);
 
+        this.players.forEach((player) => player.points = 0);
+
         if (this.status === "active") {
             
             notifySocket('error', "Game is already active", "", this.host.id);            
@@ -109,7 +112,13 @@ export class Game {
     updateCorrectPlayers = (player: User) => {
         this.correct_players.push(player);
         this.updateClients();
-        
+
+        const guesser_award = Math.floor(100 / this.correct_players.length);
+        player.points += guesser_award;
+        notifySocket('success', "You've received " + guesser_award.toString() + " points!", "", player.id);
+
+        //TODO: award points to the artist.. maybe based off the time when the guess happened (faster = more points)
+
         if(this.correct_players.length == this.players.length - 1){
             //this.endRound();
             
@@ -223,6 +232,7 @@ export class Game {
     
         console.log('Game has ended');
         this.status = "ended";
+        this.players.forEach((player) => notifySocket('info', 'Game over!', 'The game has ended. Returning home.', player.id));
         this.updateClients();
     }
 

@@ -63,6 +63,7 @@ var Game = /** @class */ (function () {
         };
         this.startGame = function () {
             console.log('Starting game: ' + _this.room);
+            _this.players.forEach(function (player) { return player.points = 0; });
             if (_this.status === "active") {
                 notifySocket('error', "Game is already active", "", _this.host.id);
                 return;
@@ -81,6 +82,10 @@ var Game = /** @class */ (function () {
         this.updateCorrectPlayers = function (player) {
             _this.correct_players.push(player);
             _this.updateClients();
+            var guesser_award = Math.floor(100 / _this.correct_players.length);
+            player.points += guesser_award;
+            notifySocket('success', "You've received " + guesser_award.toString() + " points!", "", player.id);
+            //TODO: award points to the artist.. maybe based off the time when the guess happened (faster = more points)
             if (_this.correct_players.length == _this.players.length - 1) {
                 //this.endRound();
                 //? FIXME: cancel timer so that the rounds ends immediately when all users guessed correctly before the timer ran out 
@@ -188,6 +193,7 @@ var Game = /** @class */ (function () {
         */
         console.log('Game has ended');
         this.status = "ended";
+        this.players.forEach(function (player) { return notifySocket('info', 'Game over!', 'The game has ended. Returning home.', player.id); });
         this.updateClients();
     };
     Game.prototype.clearBoards = function () {
