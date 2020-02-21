@@ -72,9 +72,7 @@ export class Game {
     
     lobby = () => {
         console.log('Game created')
-        // join the host the lobby 
-
-        
+        // join the host the lobby         
 
         /* 
             TODO:
@@ -115,7 +113,7 @@ export class Game {
 
         const guesser_award = Math.floor(100 / this.correct_players.length);
         player.points += guesser_award;
-        notifySocket('success', "You've received " + guesser_award.toString() + " points!", "", player.id);
+        notifySocket('success', `You've received ${guesser_award.toString()} points!`, "", player.id);
 
         //TODO: award points to the artist.. maybe based off the time when the guess happened (faster = more points)
 
@@ -278,7 +276,7 @@ export default function SiteLogic(server) {
         console.log(games);
         console.log('Joining game ' + room);
         if(!game) {
-            notifySocket('error', 'Unable to join game', 'Game not found with id "' + room + '".', socket.id);
+            notifySocket('error', 'Unable to join game', `Game not found with id "${room}".`, socket.id);
             return;
         }
 
@@ -298,7 +296,7 @@ export default function SiteLogic(server) {
 
         socket.join(game.room);
         socket.emit('game joined', game);
-        console.log(socket.id + " has joined room " + game.room);
+        console.log(`${socket.id} has joined room ${game.room}`);
     }
 
     /**
@@ -346,7 +344,7 @@ export default function SiteLogic(server) {
 
     const updateCanvasSocket = (socket) => {
         socket.on('updateCanvas', (obj) => {
-            console.log(obj.room + ' is being painted');
+            console.log(`${obj.room} is being painted`);
             if(obj){
                 socket.to(obj.room).emit('updateAllCanvases', {
                     data: obj.data
@@ -366,7 +364,7 @@ export default function SiteLogic(server) {
             if(GAME_FOUND) {
 
                 if ( GAME_FOUND.host.id !== socket.id ) {
-                    notifySocket('info', '[' + socket.nickname + '] has joined your lobby', '', GAME_FOUND.host.id);                    
+                    notifySocket('info', `[${socket.nickname}] has joined your lobby`, '', GAME_FOUND.host.id);                    
                 }
                 io.in(roomId).emit('game info', GAME_FOUND);
                 //socket.emit('game info', lobby);
@@ -382,7 +380,7 @@ export default function SiteLogic(server) {
                 if(socket.id === realGame.host.id){
                     realGame.startGame();
                 } else {
-                    console.log(socket.id + ' is not host')
+                    console.log(`${socket.id} is not host`)
                 }
             } else {
                 notifySocket('error', 'Unable to start game.', 'Please refresh and try again.', socket.id);
@@ -429,7 +427,7 @@ export default function SiteLogic(server) {
                                 if(!correctPlayerFound){
                                     
                                     io.in(obj.room).emit('receive message', {
-                                        message: socket.nickname + " guessed the word!",
+                                        message: `${socket.nickname} guessed the word!`,
                                         nickname: "[Game]"
                                     });
 
@@ -542,7 +540,7 @@ export default function SiteLogic(server) {
 
         updateNicknameSocket(socket);        
 
-        console.log(socket.id + ' has connected');
+        console.log(`${socket.id} has connected`);
 
         updateCanvasSocket(socket);
 
@@ -553,8 +551,6 @@ export default function SiteLogic(server) {
         chatMessageSocket(socket);
 
         requestWordSocket(socket);
-
-
 
     });
     

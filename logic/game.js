@@ -55,7 +55,7 @@ var Game = /** @class */ (function () {
         var _this = this;
         this.lobby = function () {
             console.log('Game created');
-            // join the host the lobby 
+            // join the host the lobby         
             /*
                 TODO:
                 - start game when host clicks start button
@@ -234,7 +234,7 @@ function SiteLogic(server) {
         console.log(games);
         console.log('Joining game ' + room);
         if (!game) {
-            notifySocket('error', 'Unable to join game', 'Game not found with id "' + room + '".', socket.id);
+            notifySocket('error', 'Unable to join game', "Game not found with id \"" + room + "\".", socket.id);
             return;
         }
         // Check if socket is already in the game. If it is, then update that player
@@ -288,7 +288,7 @@ function SiteLogic(server) {
     };
     var updateCanvasSocket = function (socket) {
         socket.on('updateCanvas', function (obj) {
-            console.log(obj.room + ' is being painted');
+            console.log(obj.room + " is being painted");
             if (obj) {
                 socket.to(obj.room).emit('updateAllCanvases', {
                     data: obj.data
@@ -305,7 +305,7 @@ function SiteLogic(server) {
             var GAME_FOUND = findGame(roomId);
             if (GAME_FOUND) {
                 if (GAME_FOUND.host.id !== socket.id) {
-                    notifySocket('info', '[' + socket.nickname + '] has joined your lobby', '', GAME_FOUND.host.id);
+                    notifySocket('info', "[" + socket.nickname + "] has joined your lobby", '', GAME_FOUND.host.id);
                 }
                 io["in"](roomId).emit('game info', GAME_FOUND);
                 //socket.emit('game info', lobby);
@@ -320,7 +320,7 @@ function SiteLogic(server) {
                     realGame.startGame();
                 }
                 else {
-                    console.log(socket.id + ' is not host');
+                    console.log(socket.id + " is not host");
                 }
             }
             else {
@@ -447,7 +447,7 @@ function SiteLogic(server) {
         joinGameSocket(socket);
         createGameSocket(socket);
         updateNicknameSocket(socket);
-        console.log(socket.id + ' has connected');
+        console.log(socket.id + " has connected");
         updateCanvasSocket(socket);
         getLobbyInfoSocket(socket);
         startGameSocket(socket);
