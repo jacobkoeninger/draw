@@ -138,13 +138,8 @@ export default class Home extends React.Component {
         this.state.socket.on('game joined', (GAME) => {
             if(GAME != null) {
                 console.log('game joined successfully', GAME.room);
-                
-                // FIXME: it is probably better to set the room here, so that we now that the user joined the room successfully
                 this.props.setRoom(GAME.room);
-                this.setState({
-                    roomJoined: true
-                });
-
+                this.setState({ roomJoined: true });
             } else {
                 console.error('Room not found');
             }

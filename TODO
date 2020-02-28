@@ -1,0 +1,10 @@
+
+Todo:
+  ☐ Store word lists outside of the game logic (Either in an API endpoint or in a module that can be imported)
+  ☐ Setup nodemon (live reloading for Node server)
+  ☐ Allow users to choose their set of words from a dropdown list
+  ☐ Allow users to create a word list of their own
+  ☐ End game screen (showing user names and points, as well as being able to start a new game maybe)
+  ☐ Connect to a database
+  ☐ User accounts (not required to play)
+  ☐ Convert React files to Typescript

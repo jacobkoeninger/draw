@@ -124,6 +124,9 @@ export default class GameChat extends React.Component {
                     renderItem={item => (
                     <li>
                         <Comment
+                        /* style={{
+                            padding: 0
+                        }} */
                         author={item.author}
                         content={item.content}
                         />
