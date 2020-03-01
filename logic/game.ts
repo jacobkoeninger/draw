@@ -22,9 +22,9 @@ function notifySocket(type: string, message: string, description: string, socket
 }
 
 enum STATUS {
-    ACTIVE,
-    LOBBY,
-    ENDED
+    ACTIVE = "active",
+    LOBBY = "lobby",
+    ENDED = "ended"
 }
 
 export class Game {
@@ -256,6 +256,7 @@ export class Game {
             status: this.status,
             correct_players: this.correct_players
         });
+        console.log(this.status);
     }
 
 }
@@ -276,9 +277,6 @@ export default function SiteLogic(server) {
      */
     const joinGame = (user: User, room: string, socket) => {
         const game = findGame(room);
-        console.log(game);
-        console.log(games);
-        console.log('Joining game ' + room);
         if(!game) {
             notifySocket('error', 'Unable to join game', `Game not found with id "${room}".`, socket.id);
             return;

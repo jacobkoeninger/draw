@@ -50,9 +50,9 @@ function notifySocket(type, message, description, socketId) {
 }
 var STATUS;
 (function (STATUS) {
-    STATUS[STATUS["ACTIVE"] = 0] = "ACTIVE";
-    STATUS[STATUS["LOBBY"] = 1] = "LOBBY";
-    STATUS[STATUS["ENDED"] = 2] = "ENDED";
+    STATUS["ACTIVE"] = "active";
+    STATUS["LOBBY"] = "lobby";
+    STATUS["ENDED"] = "ended";
 })(STATUS || (STATUS = {}));
 var Game = /** @class */ (function () {
     function Game(host, room, words, max_rounds, max_players, round_length) {
@@ -220,6 +220,7 @@ var Game = /** @class */ (function () {
             status: this.status,
             correct_players: this.correct_players
         });
+        console.log(this.status);
     };
     return Game;
 }());
@@ -237,9 +238,6 @@ function SiteLogic(server) {
      */
     var joinGame = function (user, room, socket) {
         var game = findGame(room);
-        console.log(game);
-        console.log(games);
-        console.log('Joining game ' + room);
         if (!game) {
             notifySocket('error', 'Unable to join game', "Game not found with id \"" + room + "\".", socket.id);
             return;

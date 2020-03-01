@@ -81,6 +81,7 @@ export default class Board extends React.Component {
             this.setState({
                 game: game
             });
+            
             console.log(game);
 
             if(game.host.id == this.state.socket.id){
@@ -114,6 +115,7 @@ export default class Board extends React.Component {
     showStartButton = () => {
         if(this.state.isHost && this.state.game){
             if(this.state.game.status === "lobby"){
+                console.log('Show start button');
                 return <Button type="primary" onClick={this.startGame} size="large">Start</Button>;
             }
         } else {

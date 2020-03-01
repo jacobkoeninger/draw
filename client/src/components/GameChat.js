@@ -10,9 +10,6 @@ import {
 
 export default class GameChat extends React.Component {
     
-
-    
-    
     constructor(props){
         super(props);
         this.state = {
@@ -118,7 +115,7 @@ export default class GameChat extends React.Component {
                 
                 <List
                     className="comment-list"
-                    header={`${this.state.data.length} replies`}
+                    header={`${this.state.data.length} messages`}
                     itemLayout="horizontal"
                     dataSource={(this.state.data)}
                     renderItem={item => (
