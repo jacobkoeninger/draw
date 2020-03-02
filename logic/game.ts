@@ -445,6 +445,12 @@ export default function SiteLogic(server) {
                         game.endGame();
                     } else if (game.players.length < 1) {
                         game.endGame();
+                    } else {
+                        // Give host to random player if host leaves
+                        if(socketId === game.host.id){
+                            game.host = game.players[Math.floor(Math.random() * game.players.length)];
+                        }
+
                     }
                 }
             });

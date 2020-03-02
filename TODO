@@ -5,11 +5,10 @@ Todo:
     ✔ Check on backend (give notification to user that artist cannot type) @done(20-03-01 18:59)
   ✔ Make sure when making a game, that is the random romm id is not taken [ getUniqueRoomId() ] @started(20-03-02 13:30) @done(20-03-02 13:32) @lasted(2m52s)
   ✔ Remove game from list of games when the game ends @done(20-03-02 13:46)
-  ☐ Show active games on the main menu
+  ✔ Show active games on the main menu @done(20-03-02 14:59)
     ✔ have private option when making game to prevent showing up on that list @done(20-03-02 14:26)
   ✔ Matchmaking system of some kind @done(20-03-02 14:54)
-  ☐ Determine whether to allow joining mid game (currently set to only be able to join if status === lobby)
-  ☐ Move host over to someone else if host leaves during the game
+  ☐ Move host over to someone else if host leaves during the game @started(20-03-02 16:14)
   ☐ Scale UI
   ☐ Send message when chatbox is active and user hits Enter
   ☐ End round when all users have guessed correctly (timer needs general improvements as well (might be affecting other gamesm, etc))
@@ -23,12 +22,13 @@ Todo:
   ☐ Allow users to create a word list of their own
   ☐ End game screen (showing user names and points, as well as being able to start a new game maybe)
   ☐ User accounts (not required to play)
-    ☐ Avatar (probably from a list and not upload)
-    ☐ Stats (games played, won, lost, ratio, etc, total words guessed correctly, best/worst category of words for guessing and for drawing, average guess time)
+  ☐ Avatar (probably from a list and not upload)
+  ☐ Stats (games played, won, lost, ratio, etc, total words guessed correctly, best/worst category of words for guessing and for drawing, average guess time)
   ☐ Convert React files to Typescript
   ☐ Refactor Game logic to use more efficient sorting methods.
   ☐ Verify that multiple games can play concurrently as intended.
   ☐ Push to a VPS (possibly DO droplet)
+  ☐ Determine whether to allow joining mid game (currently set to only be able to join if status === lobby)
   ☐ Finalize the design of the site
 
 
