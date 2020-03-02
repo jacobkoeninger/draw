@@ -243,15 +243,16 @@ export default function SiteLogic(server) {
     const joinGame = (user: User, room: string, socket) => {
         const game = findGameByRoomId(room);
 
+        if(!game) {
+            notifySocket(NOTIFICATION.ERROR, 'Unable to join game', `Game not found with id "${room}".`, socket.id);
+            return;
+        }
+        
         if(game.status !== STATUS.LOBBY){
             notifySocket(NOTIFICATION.ERROR, 'Unable to join game', `Game has already started`, socket.id);
             return;
         }
 
-        if(!game) {
-            notifySocket(NOTIFICATION.ERROR, 'Unable to join game', `Game not found with id "${room}".`, socket.id);
-            return;
-        }
 
         // Check if socket is already in the game. If it is, then update that player
         let playerFound: User;
@@ -434,7 +435,6 @@ export default function SiteLogic(server) {
     }
 
     const handleDisconnect = (socketId: string) => {
-        // FIXME: Only update the game the user was connected to
 
         games.forEach((game: Game) => {
             game.players.forEach((player: User) => {
@@ -455,16 +455,6 @@ export default function SiteLogic(server) {
                 }
             });
         });
-
-
-        /* games.forEach((game) => {
-            
-            if(game.players.length < 2 && game.status === STATUS.ACTIVE){
-                game.endGame();
-            }
-            io.in(game.room).emit('game info', game);
-        }); */
-
 
     };
 

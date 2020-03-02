@@ -183,7 +183,9 @@ export default class Home extends React.Component {
                     }}
                     onCancel={this.handleNickCancel}
                     >
-                    <Input onChange={(e) => {
+                    <Input onKeyDown={(e) => {
+                        if(e.key === "Enter") this.handleNickOk();
+                    }} onChange={(e) => {
                         this.setState({ nickname: e.target.value })
                     }} placeholder="John Smith" suffix="Nickname" />
                 </Modal>
@@ -199,13 +201,13 @@ export default class Home extends React.Component {
                     >
                     
                     
-                    <Input value={this.state.createGameMaxRounds} onChange={(e) => {
+                    <Input onKeyDown={(e) => {if(e.key === "Enter") this.handleCreateGameOk();}} value={this.state.createGameMaxRounds} onChange={(e) => {
                         this.setState({ createGameMaxRounds: e.target.value })
                     }} placeholder="Maximum number of rounds" suffix="# Rounds" />
-                    <Input value={this.state.createGameMaxPlayers} onChange={(e) => {
+                    <Input onKeyDown={(e) => {if(e.key === "Enter") this.handleCreateGameOk();}} value={this.state.createGameMaxPlayers} onChange={(e) => {
                         this.setState({ createGameMaxPlayers: e.target.value })
                     }} placeholder="Maximum number of players" suffix="# Players" />
-                    <Input value={this.state.createGameRoundLength} onChange={(e) => {
+                    <Input onKeyDown={(e) => {if(e.key === "Enter") this.handleCreateGameOk();}} value={this.state.createGameRoundLength} onChange={(e) => {
                         this.setState({ createGameRoundLength: e.target.value })
                     }} placeholder="Rounds Length (in seconds)" suffix="Round Length" />
                     <Checkbox value={this.state.createGameIsPrivate} onChange={(e) => {
@@ -225,7 +227,12 @@ export default class Home extends React.Component {
                     <Row>
                         <Col span={4} offset={10} >
                             <div className="homeFormGroup">
-                                <Input onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
+                                <Input onKeyDown={(e) => {
+                                    if(e.key === "Enter") {
+                                        this.setState({ creatingOrJoining: "joining" });
+                                        this.showModal();
+                                    }
+                                }} onChange={(e) => {this.setState({roomNumber: e.target.value})}}  placeholder="Room #" />
                                 <Button size="large" type="" onClick={() => {
                                     this.setState({ creatingOrJoining: "joining" });
                                     this.showModal();

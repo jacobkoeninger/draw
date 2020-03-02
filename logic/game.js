@@ -217,12 +217,12 @@ function SiteLogic(server) {
      */
     var joinGame = function (user, room, socket) {
         var game = findGameByRoomId(room);
-        if (game.status !== STATUS.LOBBY) {
-            notifySocket(NOTIFICATION.ERROR, 'Unable to join game', "Game has already started", socket.id);
-            return;
-        }
         if (!game) {
             notifySocket(NOTIFICATION.ERROR, 'Unable to join game', "Game not found with id \"" + room + "\".", socket.id);
+            return;
+        }
+        if (game.status !== STATUS.LOBBY) {
+            notifySocket(NOTIFICATION.ERROR, 'Unable to join game', "Game has already started", socket.id);
             return;
         }
         // Check if socket is already in the game. If it is, then update that player
@@ -376,7 +376,6 @@ function SiteLogic(server) {
         });
     }
     var handleDisconnect = function (socketId) {
-        // FIXME: Only update the game the user was connected to
         games.forEach(function (game) {
             game.players.forEach(function (player) {
                 if (player.id === socketId) {
@@ -397,13 +396,6 @@ function SiteLogic(server) {
                 }
             });
         });
-        /* games.forEach((game) => {
-            
-            if(game.players.length < 2 && game.status === STATUS.ACTIVE){
-                game.endGame();
-            }
-            io.in(game.room).emit('game info', game);
-        }); */
     };
     function socketInGame(socket, game) {
         var userFound = null;
