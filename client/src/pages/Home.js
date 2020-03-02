@@ -6,6 +6,7 @@ import {
     Button,
     Input,
     Icon,
+    Checkbox,
     Modal,
     notification,
     Row,
@@ -34,6 +35,8 @@ export default class Home extends React.Component {
             createGameMaxRounds: 10,
             createGameMaxPlayers: 2,
             createGameRoundLength: 30,
+            createGameIsPrivate: false,
+
             active_games: 0
         };
         this.joinRoomSocket();
@@ -92,7 +95,6 @@ export default class Home extends React.Component {
         });
     };
 
-
     componentDidMount = () => {
         //console.log(this.props.user)
 
@@ -121,7 +123,6 @@ export default class Home extends React.Component {
 
     createRoom = _ => {
         /* 
-            make sure nickname is set
             add room to user in users array?
             on the backend, socket.join(random name)
             load board page. (add room id as a prop somehow?)
@@ -134,7 +135,8 @@ export default class Home extends React.Component {
                 user: this.props.user,
                 max_players: this.state.createGameMaxPlayers,
                 max_rounds: this.state.createGameMaxRounds,
-                round_length: this.state.createGameRoundLength
+                round_length: this.state.createGameRoundLength,
+                isPrivate: this.state.createGameIsPrivate
             });
         } else {
             console.error("Please set nickname");
@@ -197,6 +199,9 @@ export default class Home extends React.Component {
                     <Input value={this.state.createGameRoundLength} onChange={(e) => {
                         this.setState({ createGameRoundLength: e.target.value })
                     }} placeholder="Rounds Length (in seconds)" suffix="Round Length" />
+                    <Checkbox value={this.state.createGameIsPrivate} onChange={(e) => {
+                        this.setState({ createGameIsPrivate: e.target.checked });
+                    }}>Private (Only users with ID can join)</Checkbox>
 
                 </Modal>
 
