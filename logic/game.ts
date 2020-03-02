@@ -35,10 +35,9 @@ enum STATUS {
 }
 
 export class Game {
-
+    public room: string;
     public timer;
     public host: User;
-    public room: string;
     public status: STATUS;
     public round_length: number; // in ms
     public max_rounds: number;
@@ -192,8 +191,7 @@ export class Game {
         notifySocket(NOTIFICATION.INFO, "It's your turn to draw!", "", this.current_artist.id);
     }
 
-    endGame() {
-    
+    endGame() {    
         console.log('Game has ended');
         this.status = STATUS.ENDED;
         this.players.forEach((player) => notifySocket(NOTIFICATION.INFO, 'Game over!', 'The game has ended. Returning home.', player.id));
@@ -264,6 +262,26 @@ export default function SiteLogic(server) {
 
     }
 
+    function getUniqueRoomId(): string {
+        // Recursively generate ids until one is created that is not taken
+        
+        let id: string;
+        function getRandomId(){
+            const roomId = Math.floor(Math.random() * 50000);
+            
+            games.forEach((game: Game) => {
+                if(game.room === roomId.toString()){
+                    getRandomId();
+                }
+            });
+
+            id = roomId.toString();            
+        }
+        getRandomId();
+
+        return id;
+    }
+
     /**
      * Creates a new Game (currently with preset settings)
      * Adds Game to the array games[]
@@ -272,7 +290,10 @@ export default function SiteLogic(server) {
      */
     const createGameSocket = (socket) => {
         socket.on('create game', (obj: any) => {
-            const roomId = Math.floor(Math.random() * 50000);
+            const roomId = getUniqueRoomId();
+            
+            //TODO: check if roomId is not taken
+
 
             const NEW_GAME = new Game(obj.user, roomId.toString(), ["critic","crop","cross","crowd","crown","cruel","crush","cry","cultivate","cultivation","cultivator","cup","cupboard","cure","curious","curl","current","curse","curtain","curve","cushion","custom","customary","customer","cut","daily","damage","damp","dance","danger","dare","dark","darken","date","daughter","day","daylight","dead","deaf","deafen","deal","dear","death","debt","decay","deceit","deceive","decide","decision","decisive","declare","decrease","deed","deep","deepen","deer","defeat","defend","defendant","defense","degree","delay","delicate","delight","deliver","delivery","demand","department","depend","dependence","dependent","depth","descend","descendant","descent","describe","description","desert","deserve","desire","desk","despair","destroy","destruction","destructive","detail","determine","develop","devil","diamond","dictionary","die","difference","different","difficult","difficulty","dig","dine","dinner","dip","direct","direction","director","dirt","disagree","disappear","disappearance","disappoint","disapprove","discipline","discomfort","discontent","discover","discovery","discuss","discussion","disease","disgust","dish","dismiss","disregard","disrespect","dissatisfaction","dissatisfy","distance","distant","distinguish","district","disturb","ditch","dive","divide","division","do","doctor","dog","dollar","donkey","door","dot","double","doubt","down","dozen","drag","draw","drawer","dream","dress","drink","drive","drop","drown","drum","dry","duck","due","dull","during","dust","duty","each","eager","ear","early","earn","earnest","earth","ease","east","eastern","easy","eat","edge","educate","education","educator","effect","effective","efficiency","efficient","effort","egg","either","elastic","elder","elect","election","electric","electrician","elephant","else","elsewhere",] , obj.max_rounds, obj.max_players, obj.round_length);
             games.push(NEW_GAME);
