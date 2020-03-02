@@ -217,6 +217,10 @@ function SiteLogic(server) {
      */
     var joinGame = function (user, room, socket) {
         var game = findGameByRoomId(room);
+        if (game.status !== STATUS.LOBBY) {
+            notifySocket(NOTIFICATION.ERROR, 'Unable to join game', "Game has already started", socket.id);
+            return;
+        }
         if (!game) {
             notifySocket(NOTIFICATION.ERROR, 'Unable to join game', "Game not found with id \"" + room + "\".", socket.id);
             return;
@@ -416,7 +420,7 @@ function SiteLogic(server) {
         socket.on('search game', function (user) {
             var gameFound;
             games.forEach(function (game) {
-                if (!game.isPrivate) {
+                if (!game.isPrivate && game.status === STATUS.LOBBY) {
                     gameFound = game;
                     joinGame(user, game.room, socket);
                 }

@@ -8,6 +8,7 @@ Todo:
   ☐ Show active games on the main menu
     ✔ have private option when making game to prevent showing up on that list @done(20-03-02 14:26)
   ✔ Matchmaking system of some kind @done(20-03-02 14:54)
+  ☐ Determine whether to allow joining mid game (currently set to only be able to join if status === lobby)
   ☐ Move host over to someone else if host leaves during the game
   ☐ Scale UI
   ☐ Send message when chatbox is active and user hits Enter

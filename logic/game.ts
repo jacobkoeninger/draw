@@ -242,6 +242,12 @@ export default function SiteLogic(server) {
      */
     const joinGame = (user: User, room: string, socket) => {
         const game = findGameByRoomId(room);
+
+        if(game.status !== STATUS.LOBBY){
+            notifySocket(NOTIFICATION.ERROR, 'Unable to join game', `Game has already started`, socket.id);
+            return;
+        }
+
         if(!game) {
             notifySocket(NOTIFICATION.ERROR, 'Unable to join game', `Game not found with id "${room}".`, socket.id);
             return;
@@ -478,7 +484,7 @@ export default function SiteLogic(server) {
         socket.on('search game', (user: User) => {
             let gameFound: Game;
             games.forEach((game: Game) => {
-                if(!game.isPrivate){
+                if(!game.isPrivate && game.status === STATUS.LOBBY){
                     gameFound = game;
                     joinGame(user, game.room, socket);
                 }
