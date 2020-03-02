@@ -241,7 +241,7 @@ export default function SiteLogic(server) {
      * @param socket 
      */
     const joinGame = (user: User, room: string, socket) => {
-        const game = findGame(room);
+        const game = findGameByRoomId(room);
         if(!game) {
             notifySocket(NOTIFICATION.ERROR, 'Unable to join game', `Game not found with id "${room}".`, socket.id);
             return;
@@ -328,7 +328,7 @@ export default function SiteLogic(server) {
     const getLobbyInfoSocket = (socket) => {
         socket.on('joined lobby', (roomId: string) => {
             
-            const GAME_FOUND = findGame(roomId);
+            const GAME_FOUND = findGameByRoomId(roomId);
             if(GAME_FOUND) {
 
                 if ( GAME_FOUND.host.id !== socket.id ) {
@@ -344,7 +344,7 @@ export default function SiteLogic(server) {
         socket.on('start game', (clientGameInfo: Game) => {
             
             if(socketInGame(socket, clientGameInfo)){
-                const realGame = findGame(clientGameInfo.room);
+                const realGame = findGameByRoomId(clientGameInfo.room);
                 if(socket.id === realGame.host.id){
                     realGame.startGame();
                 } else {
@@ -374,7 +374,7 @@ export default function SiteLogic(server) {
     const chatMessageSocket = (socket) => {
         socket.on('send message', (obj) => {
             
-            const realGame: Game = findGame(obj.room);
+            const realGame: Game = findGameByRoomId(obj.room);
             
             if(realGame){
                 
@@ -465,13 +465,36 @@ export default function SiteLogic(server) {
         return userFound;
     }
 
-    function findGame(roomId: string){
+    function findGameByRoomId(roomId: string){
         let gameFound = null;
         games.forEach((game) => {
             if(game.room === roomId) gameFound = game;
         });
         return gameFound;
     }
+
+    const searchForGameSocket = (socket) => {
+        // join first public game for now
+        socket.on('search game', (user: User) => {
+            let gameFound: Game;
+            games.forEach((game: Game) => {
+                if(!game.isPrivate){
+                    gameFound = game;
+                    joinGame(user, game.room, socket);
+                }
+            });            
+
+            if(!gameFound) {
+                notifySocket(NOTIFICATION.ERROR, "Failed to find game", "We were not able to find a game. Try again or create your own game", socket.id);
+            } else {
+                notifySocket(NOTIFICATION.SUCCESS, "Game found!", `Joining game with the id: ${gameFound.room}`, socket.id);
+            }
+            
+        });
+
+
+    }
+
 
     function updateOnlineUsers(user: User): void {
         let userFound = null;
@@ -493,7 +516,7 @@ export default function SiteLogic(server) {
     const requestWordSocket = (socket) => {
 
         socket.on('request word', (game) => {
-            const realGame: Game = findGame(game.room);
+            const realGame: Game = findGameByRoomId(game.room);
             if(realGame.current_artist){
                 if(realGame.current_artist.id == socket.id){
                     socket.emit('get word', realGame.current_word);
@@ -532,6 +555,8 @@ export default function SiteLogic(server) {
         chatMessageSocket(socket);
 
         requestWordSocket(socket);
+
+        searchForGameSocket(socket);
 
     });
     

@@ -66,7 +66,9 @@ export default class Home extends React.Component {
                 //this.createRoom();
                 this.setState({
                     createGameModalVisible: true
-                })
+                });
+            } else if (this.state.creatingOrJoining == "searching"){
+                this.searchGame();
             }
         }
 
@@ -121,6 +123,12 @@ export default class Home extends React.Component {
         };
     }
 
+    searchGame = () => {
+        if(this.state.nickname != "") {
+            this.state.socket.emit('search game', this.props.user );
+        };
+    }
+
     createRoom = _ => {
         /* 
             add room to user in users array?
@@ -155,6 +163,7 @@ export default class Home extends React.Component {
 
         });   
     }
+
 
 
 
@@ -227,10 +236,24 @@ export default class Home extends React.Component {
                     <Row>
                         <Col span={4} offset={10} >
                             <div className="homeFormGroup">
-                                <Button size="large" type="" onClick={() => {
-                                    this.setState({ creatingOrJoining: "creating" });
-                                    this.showModal();
-                                }}><Icon type="plus" /></Button>
+                                <center>
+                                    <Button size="large" type="" onClick={() => {
+                                        this.setState({ creatingOrJoining: "searching" });
+                                        this.showModal();
+                                    }}><Icon type="search" />Find Game</Button>
+                                </center>
+                            </div>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={4} offset={10} >
+                            <div className="homeFormGroup">
+                                <center>
+                                    <Button size="large" type="" onClick={() => {
+                                        this.setState({ creatingOrJoining: "creating" });
+                                        this.showModal();
+                                    }}><Icon type="plus" /> Create Game</Button>
+                                </center>
                             </div>
                         </Col>
                     </Row>

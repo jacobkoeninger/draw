@@ -216,7 +216,7 @@ function SiteLogic(server) {
      * @param socket
      */
     var joinGame = function (user, room, socket) {
-        var game = findGame(room);
+        var game = findGameByRoomId(room);
         if (!game) {
             notifySocket(NOTIFICATION.ERROR, 'Unable to join game', "Game not found with id \"" + room + "\".", socket.id);
             return;
@@ -288,7 +288,7 @@ function SiteLogic(server) {
     };
     var getLobbyInfoSocket = function (socket) {
         socket.on('joined lobby', function (roomId) {
-            var GAME_FOUND = findGame(roomId);
+            var GAME_FOUND = findGameByRoomId(roomId);
             if (GAME_FOUND) {
                 if (GAME_FOUND.host.id !== socket.id) {
                     notifySocket(NOTIFICATION.INFO, "[" + socket.nickname + "] has joined your lobby", '', GAME_FOUND.host.id);
@@ -301,7 +301,7 @@ function SiteLogic(server) {
     var startGameSocket = function (socket) {
         socket.on('start game', function (clientGameInfo) {
             if (socketInGame(socket, clientGameInfo)) {
-                var realGame = findGame(clientGameInfo.room);
+                var realGame = findGameByRoomId(clientGameInfo.room);
                 if (socket.id === realGame.host.id) {
                     realGame.startGame();
                 }
@@ -326,7 +326,7 @@ function SiteLogic(server) {
     }
     var chatMessageSocket = function (socket) {
         socket.on('send message', function (obj) {
-            var realGame = findGame(obj.room);
+            var realGame = findGameByRoomId(obj.room);
             if (realGame) {
                 var playerFound = findPlayerBySocketId(realGame.players, socket.id);
                 if (!((realGame.current_artist) && realGame.current_artist.id === socket.id && realGame.status === STATUS.ACTIVE)) {
@@ -403,7 +403,7 @@ function SiteLogic(server) {
         });
         return userFound;
     }
-    function findGame(roomId) {
+    function findGameByRoomId(roomId) {
         var gameFound = null;
         games.forEach(function (game) {
             if (game.room === roomId)
@@ -411,6 +411,24 @@ function SiteLogic(server) {
         });
         return gameFound;
     }
+    var searchForGameSocket = function (socket) {
+        // join first public game for now
+        socket.on('search game', function (user) {
+            var gameFound;
+            games.forEach(function (game) {
+                if (!game.isPrivate) {
+                    gameFound = game;
+                    joinGame(user, game.room, socket);
+                }
+            });
+            if (!gameFound) {
+                notifySocket(NOTIFICATION.ERROR, "Failed to find game", "We were not able to find a game. Try again or create your own game", socket.id);
+            }
+            else {
+                notifySocket(NOTIFICATION.SUCCESS, "Game found!", "Joining game with the id: " + gameFound.room, socket.id);
+            }
+        });
+    };
     function updateOnlineUsers(user) {
         var userFound = null;
         console.log(onlineUsers);
@@ -431,7 +449,7 @@ function SiteLogic(server) {
     }
     var requestWordSocket = function (socket) {
         socket.on('request word', function (game) {
-            var realGame = findGame(game.room);
+            var realGame = findGameByRoomId(game.room);
             if (realGame.current_artist) {
                 if (realGame.current_artist.id == socket.id) {
                     socket.emit('get word', realGame.current_word);
@@ -456,6 +474,7 @@ function SiteLogic(server) {
         startGameSocket(socket);
         chatMessageSocket(socket);
         requestWordSocket(socket);
+        searchForGameSocket(socket);
     });
 }
 exports["default"] = SiteLogic;
