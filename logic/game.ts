@@ -31,7 +31,7 @@ function notifySocket(type: NOTIFICATION, message: string, description: string, 
 enum STATUS {
     ACTIVE = "active",
     LOBBY = "lobby",
-    ENDED = "ended"
+    ENDED = "ended" 
 }
 
 export class Game {
@@ -113,7 +113,7 @@ export class Game {
             
             //? FIXME: cancel timer so that the rounds ends immediately when all users guessed correctly before the timer ran out 
             //this.timer.cancel(); 
-            //clearTimeout(this.timer);
+            clearTimeout(this.timer);
         }
 
         this.correct_players.push(player);
@@ -136,7 +136,7 @@ export class Game {
 
     }
 
-    startRound = async () => {
+    startRound = () => {
 
         if(this.status === STATUS.ACTIVE){
             this.clearBoards();
@@ -151,7 +151,9 @@ export class Game {
 
             io.in(this.room).emit('round started', this.round_length);
 
-            this.timer = await new Promise(resolve => setTimeout(resolve, this.round_length));
+            this.timer = setTimeout(() => {
+                console.log('Timer ended?');
+            }, this.round_length); 
 
             this.endRound();
         }
@@ -272,8 +274,6 @@ export default function SiteLogic(server) {
         socket.on('create game', (obj: any) => {
             const roomId = Math.floor(Math.random() * 50000);
 
-            console.log(obj);
-
             const NEW_GAME = new Game(obj.user, roomId.toString(), ["critic","crop","cross","crowd","crown","cruel","crush","cry","cultivate","cultivation","cultivator","cup","cupboard","cure","curious","curl","current","curse","curtain","curve","cushion","custom","customary","customer","cut","daily","damage","damp","dance","danger","dare","dark","darken","date","daughter","day","daylight","dead","deaf","deafen","deal","dear","death","debt","decay","deceit","deceive","decide","decision","decisive","declare","decrease","deed","deep","deepen","deer","defeat","defend","defendant","defense","degree","delay","delicate","delight","deliver","delivery","demand","department","depend","dependence","dependent","depth","descend","descendant","descent","describe","description","desert","deserve","desire","desk","despair","destroy","destruction","destructive","detail","determine","develop","devil","diamond","dictionary","die","difference","different","difficult","difficulty","dig","dine","dinner","dip","direct","direction","director","dirt","disagree","disappear","disappearance","disappoint","disapprove","discipline","discomfort","discontent","discover","discovery","discuss","discussion","disease","disgust","dish","dismiss","disregard","disrespect","dissatisfaction","dissatisfy","distance","distant","distinguish","district","disturb","ditch","dive","divide","division","do","doctor","dog","dollar","donkey","door","dot","double","doubt","down","dozen","drag","draw","drawer","dream","dress","drink","drive","drop","drown","drum","dry","duck","due","dull","during","dust","duty","each","eager","ear","early","earn","earnest","earth","ease","east","eastern","easy","eat","edge","educate","education","educator","effect","effective","efficiency","efficient","effort","egg","either","elastic","elder","elect","election","electric","electrician","elephant","else","elsewhere",] , obj.max_rounds, obj.max_players, obj.round_length);
             games.push(NEW_GAME);
             joinGame(obj.user, NEW_GAME.room, socket);
@@ -358,11 +358,11 @@ export default function SiteLogic(server) {
                 
                 const playerFound: User = findPlayerBySocketId(realGame.players, socket.id);
                 
-                if(realGame.current_artist && realGame.current_artist.id != socket.id){
+                if(!((realGame.current_artist) && realGame.current_artist.id === socket.id && realGame.status === STATUS.ACTIVE)) {
                     
-                    if(obj.message.toLowerCase() === realGame.current_word.toLowerCase()){
+                    if(realGame.status === STATUS.ACTIVE && obj.message.toLowerCase() === realGame.current_word.toLowerCase()){
                         if(realGame.status === STATUS.ACTIVE){
-                            
+
                             const correctPlayerFound: User = findPlayerBySocketId(realGame.correct_players, socket.id);
                             if(playerFound){                                
                                 if(!correctPlayerFound){                                    
@@ -377,16 +377,19 @@ export default function SiteLogic(server) {
 
                         }
                     } else {
-
-                        io.in(obj.room).emit('receive message', {
-                            message: obj.message,
-                            nickname: socket.nickname
-                        });
+                        if(obj.message != ""){
+                            io.in(obj.room).emit('receive message', {
+                                message: obj.message,
+                                nickname: socket.nickname
+                            });
+                        } else {
+                            notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'Message cannot not be blank.', socket.id);
+                        }
 
                     }
                 
                 } else {
-                    notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages',  playerFound.id);
+                    notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages.',  playerFound.id);
                 }
             }
             
