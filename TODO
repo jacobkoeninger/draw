@@ -4,7 +4,7 @@ Todo:
   ✔ Have artist not be able to type in chat during that round @started(20-03-01 18:37) @done(20-03-01 18:59) @lasted(22m41s)
     ✔ Check on backend (give notification to user that artist cannot type) @done(20-03-01 18:59)
   ✔ Make sure when making a game, that is the random romm id is not taken [ getUniqueRoomId() ] @started(20-03-02 13:30) @done(20-03-02 13:32) @lasted(2m52s)
-  ☐ Remove game from list of games when the game ends
+  ✔ Remove game from list of games when the game ends @done(20-03-02 13:46)
   ☐ Show active games on the main menu (have private option when making game to prevent showing up on that list)
   ☐ Scale UI
   ☐ Send message when chatbox is active and user hits Enter

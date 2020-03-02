@@ -14,10 +14,10 @@ interface User {
 };
 
 enum NOTIFICATION {
-    WARNING = 'warning',
-    INFO = 'info',
-    ERROR = 'error',
-    SUCCESS = 'success'
+    WARNING     = 'warning',
+    INFO        = 'info',
+    ERROR       = 'error',
+    SUCCESS     = 'success'
 }
 
 function notifySocket(type: NOTIFICATION, message: string, description: string, socketId: string){
@@ -29,9 +29,9 @@ function notifySocket(type: NOTIFICATION, message: string, description: string, 
 }
 
 enum STATUS {
-    ACTIVE = "active",
-    LOBBY = "lobby",
-    ENDED = "ended" 
+    ACTIVE  = "active",
+    LOBBY   = "lobby",
+    ENDED   = "ended" 
 }
 
 export class Game {
@@ -69,7 +69,6 @@ export class Game {
     }   
     
     lobby = () => {
-        
     }
 
     startGame = () => {
@@ -135,7 +134,7 @@ export class Game {
 
     }
 
-    startRound = () => {
+    startRound = async () => {
 
         if(this.status === STATUS.ACTIVE){
             this.clearBoards();
@@ -150,9 +149,7 @@ export class Game {
 
             io.in(this.room).emit('round started', this.round_length);
 
-            this.timer = setTimeout(() => {
-                console.log('Timer ended?');
-            }, this.round_length); 
+            this.timer = await new Promise(resolve => setTimeout(resolve, this.round_length)); // sleep 
 
             this.endRound();
         }
@@ -196,6 +193,10 @@ export class Game {
         this.status = STATUS.ENDED;
         this.players.forEach((player) => notifySocket(NOTIFICATION.INFO, 'Game over!', 'The game has ended. Returning home.', player.id));
         this.updateClients();
+
+        // Remove game from games array
+        games.splice(games.indexOf(this), 1);
+
     }
 
     clearBoards() {
@@ -291,10 +292,6 @@ export default function SiteLogic(server) {
     const createGameSocket = (socket) => {
         socket.on('create game', (obj: any) => {
             const roomId = getUniqueRoomId();
-            
-            //TODO: check if roomId is not taken
-
-
             const NEW_GAME = new Game(obj.user, roomId.toString(), ["critic","crop","cross","crowd","crown","cruel","crush","cry","cultivate","cultivation","cultivator","cup","cupboard","cure","curious","curl","current","curse","curtain","curve","cushion","custom","customary","customer","cut","daily","damage","damp","dance","danger","dare","dark","darken","date","daughter","day","daylight","dead","deaf","deafen","deal","dear","death","debt","decay","deceit","deceive","decide","decision","decisive","declare","decrease","deed","deep","deepen","deer","defeat","defend","defendant","defense","degree","delay","delicate","delight","deliver","delivery","demand","department","depend","dependence","dependent","depth","descend","descendant","descent","describe","description","desert","deserve","desire","desk","despair","destroy","destruction","destructive","detail","determine","develop","devil","diamond","dictionary","die","difference","different","difficult","difficulty","dig","dine","dinner","dip","direct","direction","director","dirt","disagree","disappear","disappearance","disappoint","disapprove","discipline","discomfort","discontent","discover","discovery","discuss","discussion","disease","disgust","dish","dismiss","disregard","disrespect","dissatisfaction","dissatisfy","distance","distant","distinguish","district","disturb","ditch","dive","divide","division","do","doctor","dog","dollar","donkey","door","dot","double","doubt","down","dozen","drag","draw","drawer","dream","dress","drink","drive","drop","drown","drum","dry","duck","due","dull","during","dust","duty","each","eager","ear","early","earn","earnest","earth","ease","east","eastern","easy","eat","edge","educate","education","educator","effect","effective","efficiency","efficient","effort","egg","either","elastic","elder","elect","election","electric","electrician","elephant","else","elsewhere",] , obj.max_rounds, obj.max_players, obj.round_length);
             games.push(NEW_GAME);
             joinGame(obj.user, NEW_GAME.room, socket);
