@@ -41,6 +41,13 @@ var setTimeoutPromise = util.promisify(setTimeout);
 var io;
 var games = [];
 ;
+var NOTIFICATION;
+(function (NOTIFICATION) {
+    NOTIFICATION["WARNING"] = "warning";
+    NOTIFICATION["INFO"] = "info";
+    NOTIFICATION["ERROR"] = "error";
+    NOTIFICATION["SUCCESS"] = "success";
+})(NOTIFICATION || (NOTIFICATION = {}));
 function notifySocket(type, message, description, socketId) {
     io.to(socketId).emit('notification', {
         type: type,
@@ -69,11 +76,11 @@ var Game = /** @class */ (function () {
             console.log('Starting game: ' + _this.room);
             _this.players.forEach(function (player) { return player.points = 0; });
             if (_this.status === STATUS.ACTIVE) {
-                notifySocket('error', "Game is already active", "", _this.host.id);
+                notifySocket(NOTIFICATION.ERROR, "Game is already active", "", _this.host.id);
                 return;
             }
             if (_this.players.length < 2) {
-                notifySocket('error', 'Unable to start game', 'Not enough players. At least 2 players needed', _this.host.id);
+                notifySocket(NOTIFICATION.ERROR, 'Unable to start game', 'Not enough players. At least 2 players needed', _this.host.id);
                 return;
             }
             _this.player_turns = (function () {
@@ -86,7 +93,7 @@ var Game = /** @class */ (function () {
         this.updateCorrectPlayers = function (player) {
             var guesser_award = Math.floor(100 / _this.correct_players.length);
             player.points += guesser_award;
-            notifySocket('success', "You've received " + guesser_award.toString() + " points!", "", player.id);
+            notifySocket(NOTIFICATION.SUCCESS, "You've received " + guesser_award.toString() + " points!", "", player.id);
             //TODO: award points to the artist.. maybe based off the time when the guess happened (faster = more points)
             if (_this.correct_players.length == _this.players.length - 1) {
                 //this.endRound();
@@ -172,12 +179,6 @@ var Game = /** @class */ (function () {
         //this.current_word = "Test";
     };
     Game.prototype.updateArtist = function () {
-        /*
-            TODO:
-            - only allow artist to be able to draw
-            - artist no longer can type in chat
-            - give only artist the current word
-        */
         if (this.current_artist) {
             var currentArtistIndex = this.player_turns.indexOf(this.current_artist); // FIXME: make sure this works
             if (this.player_turns[currentArtistIndex + 1]) {
@@ -190,7 +191,7 @@ var Game = /** @class */ (function () {
         else {
             this.current_artist = this.player_turns[0];
         }
-        notifySocket('info', "It's your turn to draw!", "", this.current_artist.id);
+        notifySocket(NOTIFICATION.INFO, "It's your turn to draw!", "", this.current_artist.id);
     };
     Game.prototype.endGame = function () {
         /*
@@ -200,7 +201,7 @@ var Game = /** @class */ (function () {
         */
         console.log('Game has ended');
         this.status = STATUS.ENDED;
-        this.players.forEach(function (player) { return notifySocket('info', 'Game over!', 'The game has ended. Returning home.', player.id); });
+        this.players.forEach(function (player) { return notifySocket(NOTIFICATION.INFO, 'Game over!', 'The game has ended. Returning home.', player.id); });
         this.updateClients();
     };
     Game.prototype.clearBoards = function () {
@@ -239,7 +240,7 @@ function SiteLogic(server) {
     var joinGame = function (user, room, socket) {
         var game = findGame(room);
         if (!game) {
-            notifySocket('error', 'Unable to join game', "Game not found with id \"" + room + "\".", socket.id);
+            notifySocket(NOTIFICATION.ERROR, 'Unable to join game', "Game not found with id \"" + room + "\".", socket.id);
             return;
         }
         // Check if socket is already in the game. If it is, then update that player
@@ -310,7 +311,7 @@ function SiteLogic(server) {
             var GAME_FOUND = findGame(roomId);
             if (GAME_FOUND) {
                 if (GAME_FOUND.host.id !== socket.id) {
-                    notifySocket('info', "[" + socket.nickname + "] has joined your lobby", '', GAME_FOUND.host.id);
+                    notifySocket(NOTIFICATION.INFO, "[" + socket.nickname + "] has joined your lobby", '', GAME_FOUND.host.id);
                 }
                 io["in"](roomId).emit('game info', GAME_FOUND);
                 //socket.emit('game info', lobby);
@@ -329,7 +330,7 @@ function SiteLogic(server) {
                 }
             }
             else {
-                notifySocket('error', 'Unable to start game.', 'Please refresh and try again.', socket.id);
+                notifySocket(NOTIFICATION.ERROR, 'Unable to start game.', 'Please refresh and try again.', socket.id);
                 //console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
             }
         });
@@ -345,23 +346,20 @@ function SiteLogic(server) {
     }
     var chatMessageSocket = function (socket) {
         socket.on('send message', function (obj) {
-            // do not emit receive message if the word is correct 
-            // Object.keys(socket.rooms)[0]
-            // TODO: do not allow typing if user is in correct_players
             var realGame = findGame(obj.room);
             if (realGame) {
+                var playerFound = findPlayerBySocketId(realGame.players, socket.id);
                 if (realGame.current_artist && realGame.current_artist.id != socket.id) {
                     if (obj.message.toLowerCase() === realGame.current_word.toLowerCase()) {
                         if (realGame.status === STATUS.ACTIVE) {
                             var correctPlayerFound = findPlayerBySocketId(realGame.correct_players, socket.id);
-                            var playerFound = findPlayerBySocketId(realGame.players, socket.id);
                             if (playerFound) {
                                 if (!correctPlayerFound) {
                                     io["in"](obj.room).emit('receive message', {
                                         message: socket.nickname + " guessed the word!",
                                         nickname: "[Game]"
                                     });
-                                    //TODO: emit notification to user telling them how many points they received for guessing the word
+                                    //FIXME: emit notification to user telling them how many points they received for guessing the word
                                     realGame.updateCorrectPlayers(playerFound);
                                 }
                             }
@@ -375,10 +373,7 @@ function SiteLogic(server) {
                     }
                 }
                 else {
-                    io["in"](obj.room).emit('receive message', {
-                        message: obj.message,
-                        nickname: socket.nickname
-                    });
+                    notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages', playerFound.id);
                 }
             }
         });

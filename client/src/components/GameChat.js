@@ -22,36 +22,36 @@ export default class GameChat extends React.Component {
         this.receiveMessageSocket();
     }
     
-    componentDidMount() {
-        
-    }
-
-    sendMessage = () => {
-        this.state.socket.emit('send message', ({
-            message: this.state.message,
-            room: this.props.game.room
-        }));
-        this.setState({
-            message: ""
+    componentDidMount = () => {
+        this.state.socket.on('game info', (game) => {
+            if(game.current_artist){
+                if(game.current_artist.id === this.state.socket.id){
+                    this.setState({
+                        isArtist: true
+                    });
+                } else {
+                    this.setState({
+                        isArtist: false
+                    });
+                }
+            }
         });
     }
 
-    componentDidUpdate = () => {
-        //console.log('chat updated')
-        if(this.props.artist){
-            if (this.props.artist.id === this.state.socket.id){
-                //console.log('I am artist')
-            }
-            /* if(this.props.artist.id == this.state.socket.id){
-                this.setState({
-                    isArtist: true
-                });
-            } else {
-                this.setState({
-                    isArtist: false
-                });
-            } */
+    sendMessage = () => {
+        if(this.state.message.length !== "" && this.state.message.length !== " "){
+            this.state.socket.emit('send message', ({
+                message: this.state.message,
+                room: this.props.game.room
+            }));
+            this.setState({
+                message: ""
+            });            
         }
+    }
+
+    componentDidUpdate = () => {
+        
     }
 
     

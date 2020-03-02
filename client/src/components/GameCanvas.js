@@ -6,18 +6,9 @@ import {
 } from 'antd';
 
 export default class GameCanvas extends React.Component {
-
-    /* 
-        TODO:
-        - only allow drawing if user is both the artist and game has started
-    */
-
     
     constructor(props){
         super(props);
-        /* canvas.onChange = () => {
-            console.log('change')
-        } */
         this.state = {
             canvas: null,
             socket: props.socket,
@@ -26,17 +17,6 @@ export default class GameCanvas extends React.Component {
     }
 
     saveableCanvas;
-
-    //socket = io(`http://localhost:3001`);
-
-    /* io.on('connection', (socket) => {
-        socket.on('updateAllCanvases', (data) => {
-            console.log('emit data', data);
-        });
-    }) */
-
-    
-
 
     componentDidMount() {
         
@@ -53,25 +33,10 @@ export default class GameCanvas extends React.Component {
                 }
             }
         });
-
-        /* this.state.socket.on('connection', (socket) => {
-            console.log('connected');
-        }); */
     }
 
     componentDidUpdate = () => {
-        console.log('canvas updated')
-        /* if(this.props.artist){
-            if(this.props.artist.id == this.state.socket.id){
-                this.setState({
-                    isArtist: true
-                });
-            } else {
-                this.setState({
-                    isArtist: false
-                });
-            }
-        } */
+        //console.log('canvas updated');
     }
 
     getCanvas = () => {
@@ -81,7 +46,6 @@ export default class GameCanvas extends React.Component {
 
     canvasUpdate = (data, canvas) => {
         if(this.state.isArtist){
-            //console.log('Canvas', data.getSaveData());
             this.setState({canvas: canvas});
             this.state.socket.emit('updateCanvas', {
                 //TODO: compress data either here or on the server 

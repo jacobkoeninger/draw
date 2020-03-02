@@ -1,6 +1,10 @@
 
 Todo:
   ✔ Setup nodemon (live reloading for Node server) @started(20-03-01 18:27) @done(20-03-01 18:32) @lasted(5m23s)
+  ✔ Have artist not be able to type in chat during that round @started(20-03-01 18:37) @done(20-03-01 18:59) @lasted(22m41s)
+    ✔ Check on backend (give notification to user that artist cannot type) @done(20-03-01 18:59)
+  ☐ Compress Canvas data (either on the frontend or backend) with something like https://github.com/pieroxy/lz-string
+  ☐ End round when all users have guessed correctly (timer needs general improvements as well (might be affecting other gamesm, etc))
   ☐ Connect to a database
   ☐ Store word lists outside of the game logic (Either in an API endpoint or in a module that can be imported)
   ☐ Allow users to choose their set of words from a dropdown list

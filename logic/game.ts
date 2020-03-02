@@ -13,7 +13,14 @@ interface User {
     points: number;
 };
 
-function notifySocket(type: string, message: string, description: string, socketId: string){
+enum NOTIFICATION {
+    WARNING = 'warning',
+    INFO = 'info',
+    ERROR = 'error',
+    SUCCESS = 'success'
+}
+
+function notifySocket(type: NOTIFICATION, message: string, description: string, socketId: string){
     io.to(socketId).emit('notification', {
         type: type,
         message: message,
@@ -90,13 +97,13 @@ export class Game {
 
         if (this.status === STATUS.ACTIVE) {
             
-            notifySocket('error', "Game is already active", "", this.host.id);            
+            notifySocket(NOTIFICATION.ERROR, "Game is already active", "", this.host.id);            
 
             return;
         }
         if (this.players.length < 2) {            
 
-            notifySocket('error', 'Unable to start game', 'Not enough players. At least 2 players needed', this.host.id);
+            notifySocket(NOTIFICATION.ERROR, 'Unable to start game', 'Not enough players. At least 2 players needed', this.host.id);
 
             return;
         }
@@ -114,7 +121,7 @@ export class Game {
 
         const guesser_award = Math.floor(100 / this.correct_players.length);
         player.points += guesser_award;
-        notifySocket('success', `You've received ${guesser_award.toString()} points!`, "", player.id);
+        notifySocket(NOTIFICATION.SUCCESS, `You've received ${guesser_award.toString()} points!`, "", player.id);
 
         //TODO: award points to the artist.. maybe based off the time when the guess happened (faster = more points)
 
@@ -205,12 +212,6 @@ export class Game {
     }
 
     updateArtist(){
-        /* 
-            TODO:
-            - only allow artist to be able to draw
-            - artist no longer can type in chat
-            - give only artist the current word
-        */
         if(this.current_artist){
             const currentArtistIndex = this.player_turns.indexOf(this.current_artist); // FIXME: make sure this works
             if(this.player_turns[currentArtistIndex + 1]){
@@ -222,7 +223,7 @@ export class Game {
             this.current_artist = this.player_turns[0];
         }
 
-        notifySocket('info', "It's your turn to draw!", "", this.current_artist.id);
+        notifySocket(NOTIFICATION.INFO, "It's your turn to draw!", "", this.current_artist.id);
     }
 
     endGame() {
@@ -234,7 +235,7 @@ export class Game {
     
         console.log('Game has ended');
         this.status = STATUS.ENDED;
-        this.players.forEach((player) => notifySocket('info', 'Game over!', 'The game has ended. Returning home.', player.id));
+        this.players.forEach((player) => notifySocket(NOTIFICATION.INFO, 'Game over!', 'The game has ended. Returning home.', player.id));
         this.updateClients();
     }
 
@@ -278,7 +279,7 @@ export default function SiteLogic(server) {
     const joinGame = (user: User, room: string, socket) => {
         const game = findGame(room);
         if(!game) {
-            notifySocket('error', 'Unable to join game', `Game not found with id "${room}".`, socket.id);
+            notifySocket(NOTIFICATION.ERROR, 'Unable to join game', `Game not found with id "${room}".`, socket.id);
             return;
         }
 
@@ -366,7 +367,7 @@ export default function SiteLogic(server) {
             if(GAME_FOUND) {
 
                 if ( GAME_FOUND.host.id !== socket.id ) {
-                    notifySocket('info', `[${socket.nickname}] has joined your lobby`, '', GAME_FOUND.host.id);                    
+                    notifySocket(NOTIFICATION.INFO, `[${socket.nickname}] has joined your lobby`, '', GAME_FOUND.host.id);                    
                 }
                 io.in(roomId).emit('game info', GAME_FOUND);
                 //socket.emit('game info', lobby);
@@ -385,7 +386,7 @@ export default function SiteLogic(server) {
                     console.log(`${socket.id} is not host`)
                 }
             } else {
-                notifySocket('error', 'Unable to start game.', 'Please refresh and try again.', socket.id);
+                notifySocket(NOTIFICATION.ERROR, 'Unable to start game.', 'Please refresh and try again.', socket.id);
 
                 //console.error(socket.id + ' is attempting to start a game they are not in (with ID ' + clientGameInfo.room + ')');
 
@@ -407,36 +408,27 @@ export default function SiteLogic(server) {
 
     const chatMessageSocket = (socket) => {
         socket.on('send message', (obj) => {
-            // do not emit receive message if the word is correct 
-            
-            // Object.keys(socket.rooms)[0]
-
-            // TODO: do not allow typing if user is in correct_players
             
             const realGame: Game = findGame(obj.room);
             
             if(realGame){
+                
+                const playerFound: User = findPlayerBySocketId(realGame.players, socket.id);
+                
                 if(realGame.current_artist && realGame.current_artist.id != socket.id){
-
                     
                     if(obj.message.toLowerCase() === realGame.current_word.toLowerCase()){
                         if(realGame.status === STATUS.ACTIVE){
                             
-                            const correctPlayerFound = findPlayerBySocketId(realGame.correct_players, socket.id);
-                            const playerFound = findPlayerBySocketId(realGame.players, socket.id);
-                            if(playerFound){
-                                
-                                if(!correctPlayerFound){
-                                    
+                            const correctPlayerFound: User = findPlayerBySocketId(realGame.correct_players, socket.id);
+                            if(playerFound){                                
+                                if(!correctPlayerFound){                                    
                                     io.in(obj.room).emit('receive message', {
                                         message: `${socket.nickname} guessed the word!`,
                                         nickname: "[Game]"
                                     });
-
-                                    //TODO: emit notification to user telling them how many points they received for guessing the word
-
+                                    //FIXME: emit notification to user telling them how many points they received for guessing the word
                                     realGame.updateCorrectPlayers(playerFound);
-                                    
                                 }
 
                             }
@@ -453,10 +445,7 @@ export default function SiteLogic(server) {
                     }
                 
                 } else {
-                    io.in(obj.room).emit('receive message', {
-                        message: obj.message,
-                        nickname: socket.nickname
-                    });
+                    notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages',  playerFound.id);
                 }
             }
 
