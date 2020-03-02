@@ -265,13 +265,6 @@ function SiteLogic(server) {
      * @param user
      * @returns game
      */
-    /* const createNewGame = (user: User): Game => {
-        const roomId = Math.floor(Math.random() * 10000);
-        const NEW_GAME = new Game(user, roomId.toString(), wordLists['misc'], 10);
-        games.push(NEW_GAME);
-
-        return NEW_GAME;
-    } */
     var createGameSocket = function (socket) {
         socket.on('create game', function (obj) {
             var roomId = Math.floor(Math.random() * 50000);
@@ -279,7 +272,6 @@ function SiteLogic(server) {
             var NEW_GAME = new Game(obj.user, roomId.toString(), ["critic", "crop", "cross", "crowd", "crown", "cruel", "crush", "cry", "cultivate", "cultivation", "cultivator", "cup", "cupboard", "cure", "curious", "curl", "current", "curse", "curtain", "curve", "cushion", "custom", "customary", "customer", "cut", "daily", "damage", "damp", "dance", "danger", "dare", "dark", "darken", "date", "daughter", "day", "daylight", "dead", "deaf", "deafen", "deal", "dear", "death", "debt", "decay", "deceit", "deceive", "decide", "decision", "decisive", "declare", "decrease", "deed", "deep", "deepen", "deer", "defeat", "defend", "defendant", "defense", "degree", "delay", "delicate", "delight", "deliver", "delivery", "demand", "department", "depend", "dependence", "dependent", "depth", "descend", "descendant", "descent", "describe", "description", "desert", "deserve", "desire", "desk", "despair", "destroy", "destruction", "destructive", "detail", "determine", "develop", "devil", "diamond", "dictionary", "die", "difference", "different", "difficult", "difficulty", "dig", "dine", "dinner", "dip", "direct", "direction", "director", "dirt", "disagree", "disappear", "disappearance", "disappoint", "disapprove", "discipline", "discomfort", "discontent", "discover", "discovery", "discuss", "discussion", "disease", "disgust", "dish", "dismiss", "disregard", "disrespect", "dissatisfaction", "dissatisfy", "distance", "distant", "distinguish", "district", "disturb", "ditch", "dive", "divide", "division", "do", "doctor", "dog", "dollar", "donkey", "door", "dot", "double", "doubt", "down", "dozen", "drag", "draw", "drawer", "dream", "dress", "drink", "drive", "drop", "drown", "drum", "dry", "duck", "due", "dull", "during", "dust", "duty", "each", "eager", "ear", "early", "earn", "earnest", "earth", "ease", "east", "eastern", "easy", "eat", "edge", "educate", "education", "educator", "effect", "effective", "efficiency", "efficient", "effort", "egg", "either", "elastic", "elder", "elect", "election", "electric", "electrician", "elephant", "else", "elsewhere",], obj.max_rounds, obj.max_players, obj.round_length);
             games.push(NEW_GAME);
             joinGame(obj.user, NEW_GAME.room, socket);
-            /* const NEW_GAME = createNewGame(obj.user);*/
         });
     };
     var joinGameSocket = function (socket) {
@@ -300,10 +292,6 @@ function SiteLogic(server) {
                     data: obj.data
                 });
             }
-            /* io.emit('updateAllCanvases', {
-            id: obj.id,
-            data: obj.data
-            }); */
         });
     };
     var getLobbyInfoSocket = function (socket) {

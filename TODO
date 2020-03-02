@@ -3,15 +3,25 @@ Todo:
   ✔ Setup nodemon (live reloading for Node server) @started(20-03-01 18:27) @done(20-03-01 18:32) @lasted(5m23s)
   ✔ Have artist not be able to type in chat during that round @started(20-03-01 18:37) @done(20-03-01 18:59) @lasted(22m41s)
     ✔ Check on backend (give notification to user that artist cannot type) @done(20-03-01 18:59)
-  ☐ Compress Canvas data (either on the frontend or backend) with something like https://github.com/pieroxy/lz-string
   ☐ End round when all users have guessed correctly (timer needs general improvements as well (might be affecting other gamesm, etc))
+  ☐ Compress Canvas data (either on the frontend or backend) with something like https://github.com/pieroxy/lz-string
+  ☐ Live view canvas 
+    - This would mean a rework of how canvas updating works. Maybe while user is the current artist, every server tick, the user will send the canvas value to the server. (would definitely want to compress data before doing this though)
   ☐ Connect to a database
   ☐ Store word lists outside of the game logic (Either in an API endpoint or in a module that can be imported)
   ☐ Allow users to choose their set of words from a dropdown list
   ☐ Allow users to create a word list of their own
   ☐ End game screen (showing user names and points, as well as being able to start a new game maybe)
   ☐ User accounts (not required to play)
+    ☐ Avatar (probably from a list and not upload)
+    ☐ Stats (games played, won, lost, ratio, etc, total words guessed correctly, best/worst category of words for guessing and for drawing, average guess time)
   ☐ Convert React files to Typescript
   ☐ Refactor Game logic to use more efficient sorting methods.
   ☐ Verify that multiple games can play concurrently as intended.
   ☐ Push to a VPS (possibly DO droplet)
+  ☐ Finalize the design of the site
+
+
+  Ideas:
+    ☐ Some way of progression (xp and leveling up, etc)
+    ☐ Group listen to music (maybe similar to how BGO does it)
