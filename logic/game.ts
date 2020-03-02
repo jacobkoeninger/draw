@@ -35,17 +35,6 @@ enum STATUS {
 }
 
 export class Game {
-    
-    /* 
-        TODO:
-        - make sure all user's rooms are updated to this.room
-        - make sure to store this game in an array somewhere
-        - handle disconnecting
-        - handle users trying to connect mid game (maybe make this an option the host can set to allow)
-
-        Ideas:
-        - Setting for have X amount of guesses allotted per round?
-        */
 
     public timer;
     public host: User;
@@ -81,13 +70,7 @@ export class Game {
     }   
     
     lobby = () => {
-        console.log('Game created')
-        // join the host the lobby         
-
-        /* 
-            TODO:
-            - start game when host clicks start button
-        */
+        
     }
 
     startGame = () => {
@@ -140,8 +123,6 @@ export class Game {
 
     endRound() {
 
-        // TODO: message the players and their scores 
-
         this.correct_players.forEach((player) => {
             io.in(this.room).emit('receive message', {
                 message: `${player.nickname} - ${player.points}`,
@@ -167,16 +148,10 @@ export class Game {
             this.updateClients();
     
             console.log('Starting round: ' + this.current_round);
-            //setTimeout(this.endRound, this.round_length);
-            
-            //this.timer = setTimeout(() => {console.log('???')}, this.round_length);
-            //await this.timer;
-
-            //console.log('after timer!!!!!!!!!!');
 
             io.in(this.room).emit('round started', this.round_length);
 
-            this.timer = await new Promise(resolve => setTimeout(resolve, this.round_length)); // sleep 
+            this.timer = await new Promise(resolve => setTimeout(resolve, this.round_length));
 
             this.endRound();
         }
@@ -186,10 +161,6 @@ export class Game {
     
 
     updateCurrentRound() {
-        /* 
-            TODO:
-            - if this.current_round + 1 > max_round, then end the game. else: increase the current_round by one
-        */
        
        if((this.current_round + 1) > this.max_rounds){
            this.endGame();
@@ -200,20 +171,13 @@ export class Game {
     }
 
     updateWord() {
-        /* 
-            TODO:
-            - choose a random word from this.words
-            - make sure it hasn't be chosen before (not in this.used_words)
-        */
         
         this.current_word = this.words[Math.floor(Math.random() * this.words.length)]; 
-        //this.current_word = "Test";
-
     }
 
     updateArtist(){
         if(this.current_artist){
-            const currentArtistIndex = this.player_turns.indexOf(this.current_artist); // FIXME: make sure this works
+            const currentArtistIndex = this.player_turns.indexOf(this.current_artist);
             if(this.player_turns[currentArtistIndex + 1]){
                 this.current_artist = this.player_turns[currentArtistIndex + 1];
             } else {
@@ -227,11 +191,6 @@ export class Game {
     }
 
     endGame() {
-        /* 
-            TODO:
-            - show results
-            - maybe redirect all users to Home
-        */
     
         console.log('Game has ended');
         this.status = STATUS.ENDED;
@@ -300,6 +259,7 @@ export default function SiteLogic(server) {
         socket.join(game.room);
         socket.emit('game joined', game);
         console.log(`${socket.id} has joined room ${game.room}`);
+
     }
 
     /**
@@ -322,9 +282,7 @@ export default function SiteLogic(server) {
 
     const joinGameSocket = (socket) => {
         socket.on('join game', (obj) => {
-
             joinGame(obj.user, obj.roomId, socket);
-
         });
     }
 
@@ -415,9 +373,7 @@ export default function SiteLogic(server) {
                                     //FIXME: emit notification to user telling them how many points they received for guessing the word
                                     realGame.updateCorrectPlayers(playerFound);
                                 }
-
                             }
-
 
                         }
                     } else {
@@ -433,7 +389,6 @@ export default function SiteLogic(server) {
                     notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages',  playerFound.id);
                 }
             }
-
             
         });
     }
@@ -454,11 +409,11 @@ export default function SiteLogic(server) {
     };
 
     function socketInGame(socket: any, game: Game){
-        //TODO: A much more efficient way of doing this is just loop through the socket's rooms and check if room id is in there
         let userFound = null;
         game.players.forEach((player) => {
             if(player.id == socket.id) userFound = player;
-        })
+        });
+        
         return userFound;
     }
 
@@ -470,7 +425,7 @@ export default function SiteLogic(server) {
         return gameFound;
     }
 
-    function updateOnlineUsers(user: User){
+    function updateOnlineUsers(user: User): void {
         let userFound = null;
         console.log(onlineUsers);
         onlineUsers.forEach((onlineUser, index) => {

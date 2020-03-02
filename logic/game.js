@@ -65,12 +65,6 @@ var Game = /** @class */ (function () {
     function Game(host, room, words, max_rounds, max_players, round_length) {
         var _this = this;
         this.lobby = function () {
-            console.log('Game created');
-            // join the host the lobby         
-            /*
-                TODO:
-                - start game when host clicks start button
-            */
         };
         this.startGame = function () {
             console.log('Starting game: ' + _this.room);
@@ -118,15 +112,11 @@ var Game = /** @class */ (function () {
                         this.correct_players = [];
                         this.updateClients();
                         console.log('Starting round: ' + this.current_round);
-                        //setTimeout(this.endRound, this.round_length);
-                        //this.timer = setTimeout(() => {console.log('???')}, this.round_length);
-                        //await this.timer;
-                        //console.log('after timer!!!!!!!!!!');
                         io["in"](this.room).emit('round started', this.round_length);
                         _a = this;
                         return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, _this.round_length); })];
                     case 1:
-                        _a.timer = _b.sent(); // sleep 
+                        _a.timer = _b.sent();
                         this.endRound();
                         _b.label = 2;
                     case 2: return [2 /*return*/];
@@ -146,7 +136,6 @@ var Game = /** @class */ (function () {
         this.lobby();
     }
     Game.prototype.endRound = function () {
-        // TODO: message the players and their scores 
         var _this = this;
         this.correct_players.forEach(function (player) {
             io["in"](_this.room).emit('receive message', {
@@ -158,10 +147,6 @@ var Game = /** @class */ (function () {
         this.startRound();
     };
     Game.prototype.updateCurrentRound = function () {
-        /*
-            TODO:
-            - if this.current_round + 1 > max_round, then end the game. else: increase the current_round by one
-        */
         if ((this.current_round + 1) > this.max_rounds) {
             this.endGame();
         }
@@ -170,17 +155,11 @@ var Game = /** @class */ (function () {
         }
     };
     Game.prototype.updateWord = function () {
-        /*
-            TODO:
-            - choose a random word from this.words
-            - make sure it hasn't be chosen before (not in this.used_words)
-        */
         this.current_word = this.words[Math.floor(Math.random() * this.words.length)];
-        //this.current_word = "Test";
     };
     Game.prototype.updateArtist = function () {
         if (this.current_artist) {
-            var currentArtistIndex = this.player_turns.indexOf(this.current_artist); // FIXME: make sure this works
+            var currentArtistIndex = this.player_turns.indexOf(this.current_artist);
             if (this.player_turns[currentArtistIndex + 1]) {
                 this.current_artist = this.player_turns[currentArtistIndex + 1];
             }
@@ -194,11 +173,6 @@ var Game = /** @class */ (function () {
         notifySocket(NOTIFICATION.INFO, "It's your turn to draw!", "", this.current_artist.id);
     };
     Game.prototype.endGame = function () {
-        /*
-            TODO:
-            - show results
-            - maybe redirect all users to Home
-        */
         console.log('Game has ended');
         this.status = STATUS.ENDED;
         this.players.forEach(function (player) { return notifySocket(NOTIFICATION.INFO, 'Game over!', 'The game has ended. Returning home.', player.id); });
@@ -381,7 +355,6 @@ function SiteLogic(server) {
         });
     };
     function socketInGame(socket, game) {
-        //TODO: A much more efficient way of doing this is just loop through the socket's rooms and check if room id is in there
         var userFound = null;
         game.players.forEach(function (player) {
             if (player.id == socket.id)

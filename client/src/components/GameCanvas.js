@@ -12,7 +12,8 @@ export default class GameCanvas extends React.Component {
         this.state = {
             canvas: null,
             socket: props.socket,
-            isArtist: false
+            isArtist: false,
+            status: ""
         }
     }
 
@@ -32,6 +33,11 @@ export default class GameCanvas extends React.Component {
                     });
                 }
             }
+            if(game.status){
+                this.setState({
+                    status: game.status
+                });
+            }
         });
     }
 
@@ -45,6 +51,7 @@ export default class GameCanvas extends React.Component {
 
 
     canvasUpdate = (data, canvas) => {
+        console.log(data.getSaveData());
         if(this.state.isArtist){
             this.setState({canvas: canvas});
             this.state.socket.emit('updateCanvas', {
@@ -59,8 +66,8 @@ export default class GameCanvas extends React.Component {
     render() {
 
         this.state.socket.on('updateAllCanvases', (obj) => {
-            //console.log(obj);
-            if(!this.state.isArtist){
+            console.log(this.state.status);
+            if(!this.state.isArtist && this.state.status === "active"){
                 if(obj.id != this.state.socket.id){
 
                     if(this.state.canvas) this.state.canvas.loadSaveData(obj.data);                   
@@ -78,7 +85,6 @@ export default class GameCanvas extends React.Component {
             } else if (this.state.canvas){
                 //this.state.canvas.clear();
             }
-            
         });
         
         return(
