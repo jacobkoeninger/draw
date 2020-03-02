@@ -33,7 +33,8 @@ export default class Home extends React.Component {
             
             createGameMaxRounds: 10,
             createGameMaxPlayers: 2,
-            createGameRoundLength: 30
+            createGameRoundLength: 30,
+            active_games: 0
         };
         this.joinRoomSocket();
     }
@@ -102,7 +103,13 @@ export default class Home extends React.Component {
                 description:
                   obj.description,
             });            
-        })
+        });
+
+        this.state.socket.on('active games', (games) => {            
+            this.setState({
+                active_games: games
+            });
+        });
 
     }
 
@@ -221,6 +228,11 @@ export default class Home extends React.Component {
                                 }}><Icon type="plus" /></Button>
                             </div>
                         </Col>
+                    </Row>
+                    <Row>
+                        <p>
+                            { this.state.active_games } active games
+                        </p>
                     </Row>
                 </Row>
 

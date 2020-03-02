@@ -93,7 +93,7 @@ var Game = /** @class */ (function () {
                 //this.endRound();
                 //? FIXME: cancel timer so that the rounds ends immediately when all users guessed correctly before the timer ran out 
                 //this.timer.cancel(); 
-                clearTimeout(_this.timer);
+                clearTimeout(_this.timer); // doesn't work
             }
             _this.correct_players.push(player);
             _this.updateClients();
@@ -179,6 +179,7 @@ var Game = /** @class */ (function () {
         this.updateClients();
         // Remove game from games array
         games.splice(games.indexOf(this), 1);
+        io.emit('active games', games.length);
     };
     Game.prototype.clearBoards = function () {
         io["in"](this.room).emit('clear boards');
@@ -361,19 +362,38 @@ function SiteLogic(server) {
             }
         });
     };
+    function kickPlayer(game, socketId) {
+        game.players = game.players.filter(function (player) {
+            if (player.id !== socketId) {
+                return true;
+            }
+            return false;
+        });
+    }
     var handleDisconnect = function (socketId) {
+        // FIXME: Only update the game the user was connected to
+        var pf;
         games.forEach(function (game) {
-            game.players = game.players.filter(function (player) {
-                if (player.id !== socketId) {
-                    return true;
+            game.players.forEach(function (player) {
+                if (player.id === socketId) {
+                    kickPlayer(game, socketId);
+                    io["in"](game.room).emit('game info', game);
+                    if (game.players.length < 2 && game.status == STATUS.ACTIVE) {
+                        game.endGame();
+                    }
+                    else if (game.players.length < 1) {
+                        game.endGame();
+                    }
                 }
-                return false;
             });
-            if (game.players.length < 2 && game.status === STATUS.ACTIVE) {
+        });
+        /* games.forEach((game) => {
+            
+            if(game.players.length < 2 && game.status === STATUS.ACTIVE){
                 game.endGame();
             }
-            io["in"](game.room).emit('game info', game);
-        });
+            io.in(game.room).emit('game info', game);
+        }); */
     };
     function socketInGame(socket, game) {
         var userFound = null;
@@ -425,6 +445,7 @@ function SiteLogic(server) {
     io.on('connection', function (socket) {
         socket.score = 0;
         socket.emit('sendId', socket.id);
+        socket.emit('active games', games.length);
         socket.on('disconnect', function (_) { return handleDisconnect(socket.id); });
         joinGameSocket(socket);
         createGameSocket(socket);

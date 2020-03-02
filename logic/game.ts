@@ -111,7 +111,9 @@ export class Game {
             
             //? FIXME: cancel timer so that the rounds ends immediately when all users guessed correctly before the timer ran out 
             //this.timer.cancel(); 
-            clearTimeout(this.timer);
+            
+            clearTimeout(this.timer); // doesn't work
+
         }
 
         this.correct_players.push(player);
@@ -196,7 +198,7 @@ export class Game {
 
         // Remove game from games array
         games.splice(games.indexOf(this), 1);
-
+        io.emit('active games', games.length);
     }
 
     clearBoards() {
@@ -414,19 +416,44 @@ export default function SiteLogic(server) {
         });
     }
 
+    function kickPlayer(game: Game, socketId: string){
+        game.players = game.players.filter((player) => {
+            if(player.id !== socketId){
+                return true;
+            }
+            return false;
+        });
+    }
+
     const handleDisconnect = (socketId: string) => {
-        games.forEach((game) => {
-            game.players = game.players.filter((player) => {
-                if(player.id !== socketId){
-                    return true;
+        // FIXME: Only update the game the user was connected to
+
+        let pf: User;
+        games.forEach((game: Game) => {
+            game.players.forEach((player: User) => {
+                if(player.id === socketId){
+                    kickPlayer(game, socketId);
+                    io.in(game.room).emit('game info', game);
+                
+                    if(game.players.length < 2 && game.status == STATUS.ACTIVE){
+                        game.endGame();
+                    } else if (game.players.length < 1) {
+                        game.endGame();
+                    }
                 }
-                return false;
             });
+        });
+
+
+        /* games.forEach((game) => {
+            
             if(game.players.length < 2 && game.status === STATUS.ACTIVE){
                 game.endGame();
             }
             io.in(game.room).emit('game info', game);
-        });
+        }); */
+
+
     };
 
     function socketInGame(socket: any, game: Game){
@@ -483,6 +510,8 @@ export default function SiteLogic(server) {
         socket.score = 0;
 
         socket.emit('sendId', socket.id);
+
+        socket.emit('active games', games.length);
 
         socket.on('disconnect', _ => handleDisconnect(socket.id));
 
