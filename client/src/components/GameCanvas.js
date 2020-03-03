@@ -1,6 +1,8 @@
 import React from 'react';
 import CanvasDraw from "react-canvas-draw";
 import io from 'socket.io-client';
+import { TwitterPicker  } from 'react-color';
+
 import {
     Button
 } from 'antd';
@@ -13,7 +15,8 @@ export default class GameCanvas extends React.Component {
             canvas: null,
             socket: props.socket,
             isArtist: false,
-            status: ""
+            status: "",
+            brushColor: "#333"
         }
     }
 
@@ -63,6 +66,16 @@ export default class GameCanvas extends React.Component {
         }
     }
 
+    
+    getColorPicker = () => {
+        let colorPicker = <TwitterPicker color={ this.state.brushColor } onChangeComplete={ (color) => { this.setState({ brushColor: color.hex }) } } />
+        if(this.state.isArtist){
+            return colorPicker;
+        } else {
+            return;
+        }
+    }
+
     render() {
 
         this.state.socket.on('updateAllCanvases', (obj) => {
@@ -86,7 +99,7 @@ export default class GameCanvas extends React.Component {
                 //this.state.canvas.clear();
             }
         });
-        
+
         return(
           <div>
             <CanvasDraw
@@ -99,6 +112,7 @@ export default class GameCanvas extends React.Component {
                 }}                
                 canvasWidth = {900}
                 canvasHeight = {500}
+                brushColor = {this.state.brushColor}
                 immediateLoading = {true}
                 disabled={!this.state.isArtist}
             />
@@ -115,6 +129,8 @@ export default class GameCanvas extends React.Component {
             <Button type="ghost" onClick={() => {
                 console.log(this.state.socket)
             }}>Log data</Button>
+            
+            { this.getColorPicker() }
           </div>
         )
     }

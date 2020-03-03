@@ -23,7 +23,7 @@ Todo:
   ☐ Scale UI
   ☐ Compress Canvas data (either on the frontend or backend) with something like https://github.com/pieroxy/lz-string - Maybe use Node buffers
   ☐ Live view canvas 
-  - This would mean a rework of how canvas updating works. Maybe while user is the current artist, every server tick, the user will send the canvas value to the server. (would definitely want to compress data before doing this though)
+    - This would mean a rework of how canvas updating works. Maybe while user is the current artist, every server tick, the user will send the canvas value to the server. (would definitely want to compress data before doing this though)
   ☐ Connect to a database
   ☐ Store word lists outside of the game logic (Either in an API endpoint or in a module that can be imported)
   ☐ Stop repeat words
