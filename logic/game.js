@@ -137,6 +137,10 @@ var Game = /** @class */ (function () {
         };
         this.kickPlayer = function (id) {
             var player = _this.players.find(function (p) { return p.id === id; });
+            if (!player) {
+                console.log('Player being kicked is not found');
+                return;
+            }
             if (_this.host.id === player.id) {
                 _this.updateHost();
             }
@@ -150,6 +154,8 @@ var Game = /** @class */ (function () {
                 }
                 return false;
             });
+            io.sockets.connected[id].leave();
+            io.to(id).emit('player kicked');
             _this.updateClients();
         };
         this.status = STATUS.LOBBY;
@@ -429,28 +435,33 @@ function SiteLogic(server) {
             var realGame = findGameByRoomId(obj.room);
             if (realGame) {
                 var playerFound = findPlayerBySocketId(realGame.players, socket.id);
-                if (!((realGame.current_artist) && realGame.current_artist.id === socket.id && realGame.status === STATUS.ACTIVE)) {
-                    if (realGame.status === STATUS.ACTIVE && obj.message.toLowerCase() === realGame.current_word.toLowerCase()) {
-                        if (realGame.status === STATUS.ACTIVE) {
-                            var correctPlayerFound = findPlayerBySocketId(realGame.correct_players, socket.id);
-                            if (playerFound) {
-                                if (!correctPlayerFound) {
-                                    io["in"](obj.room).emit('receive message', {
-                                        message: socket.nickname + " guessed the word!",
-                                        nickname: "[Game]"
-                                    });
-                                    //FIXME: emit notification to user telling them how many points they received for guessing the word
-                                    realGame.updateCorrectPlayers(playerFound);
+                if (playerFound) {
+                    if (!((realGame.current_artist) && realGame.current_artist.id === socket.id && realGame.status === STATUS.ACTIVE)) {
+                        if (realGame.status === STATUS.ACTIVE && obj.message.toLowerCase() === realGame.current_word.toLowerCase()) {
+                            if (realGame.status === STATUS.ACTIVE) {
+                                var correctPlayerFound = findPlayerBySocketId(realGame.correct_players, socket.id);
+                                if (playerFound) {
+                                    if (!correctPlayerFound) {
+                                        io["in"](obj.room).emit('receive message', {
+                                            message: socket.nickname + " guessed the word!",
+                                            nickname: "[Game]"
+                                        });
+                                        //FIXME: emit notification to user telling them how many points they received for guessing the word
+                                        realGame.updateCorrectPlayers(playerFound);
+                                    }
                                 }
                             }
                         }
+                        else {
+                            sendMessage(socket, obj);
+                        }
                     }
                     else {
-                        sendMessage(socket, obj);
+                        notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages.', playerFound.id);
                     }
                 }
                 else {
-                    notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages.', playerFound.id);
+                    notifySocket(NOTIFICATION.ERROR, 'Action not allowed', '', socket.id);
                 }
             }
         });
@@ -522,6 +533,18 @@ function SiteLogic(server) {
             }
         });
     };
+    var kickPlayerByIdSocket = function (socket) {
+        socket.on('kick player', function (obj) {
+            var game = findGameByRoomId(obj.gameId);
+            if (game) {
+                if (game.host.id === socket.id)
+                    game.kickPlayer(obj.playerId);
+            }
+            else {
+                console.error("Game not found");
+            }
+        });
+    };
     function updateOnlineUsers(user) {
         var userFound = null;
         console.log(onlineUsers);
@@ -568,6 +591,7 @@ function SiteLogic(server) {
         chatMessageSocket(socket);
         requestWordSocket(socket);
         searchForGameSocket(socket);
+        kickPlayerByIdSocket(socket);
     });
 }
 exports["default"] = SiteLogic;

@@ -39,11 +39,11 @@ export default class GameChat extends React.Component {
     }
 
     sendMessage = () => {
-        if(this.state.message.length !== "" && this.state.message.length !== " "){
-            this.state.socket.emit('send message', ({
+        if(this.state.message.length !== "" && this.state.message.length !== " "){ //FIXME:
+            this.state.socket.emit('send message', {
                 message: this.state.message,
                 room: this.props.game.room
-            }));
+            });
             this.setState({
                 message: ""
             });            

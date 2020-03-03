@@ -4,6 +4,7 @@ import {
     Icon,
     Avatar
 } from 'antd';
+import { Socket } from 'dgram';
 
 export default class UserList extends React.Component {
 
@@ -14,7 +15,8 @@ export default class UserList extends React.Component {
             socket: props.socket,
             artist: null,
             correctPlayers: [],
-            
+            gameId: null,
+            isHost: false
         }
     }
 
@@ -55,26 +57,42 @@ export default class UserList extends React.Component {
         }
     }
 
+    kickPlayer = (id) => {
+        if(this.state.gameId){
+            console.log(`kicking player ${id}`)
+            this.state.socket.emit('kick player', {playerId: id, gameId: this.state.gameId});
+        }
+    }
+
     render(){
 
         this.state.socket.on('game info', (game) => {
             this.setState({
                 users: game.players,
                 artist: game.current_artist,
-                correctPlayers: game.correct_players
+                correctPlayers: game.correct_players,
+                gameId: game.room,
             });
+            if(game.host.id === this.state.socket.id) {
+                this.setState({ isHost: true });
+            }
         });
 
-        return(
+        return (
             <div className="userList">
                 <h4> { this.getArtistNickname() } </h4>
                 <List
                     itemLayout="vertical"
                     dataSource={this.state.users}
                     renderItem={user => (
-                    <List.Item>
+                    <List.Item onClick={(e) => {
+                        if(this.state.isHost) {
+                            this.kickPlayer(user.id);
+                        }
+                    }}>
                         { /* this.getStar(user.id) */ }
                         <List.Item.Meta
+                        key={user.id}
                         avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
                         title={<a href="#">{user.nickname}</a>}
                         />

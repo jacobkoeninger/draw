@@ -219,6 +219,11 @@ export class Game {
         
         const player = this.players.find((p: User) => p.id === id);
 
+        if(!player) {
+            console.log('Player being kicked is not found');
+            return;
+        }
+
         if(this.host.id === player.id) {
             this.updateHost();
         }
@@ -234,6 +239,10 @@ export class Game {
             }
             return false;
         });
+
+        io.sockets.connected[id].leave();
+
+        io.to(id).emit('player kicked');
 
         this.updateClients();
     }
@@ -506,30 +515,36 @@ export default function SiteLogic(server) {
                 
                 const playerFound: User = findPlayerBySocketId(realGame.players, socket.id);
                 
-                if(!((realGame.current_artist) && realGame.current_artist.id === socket.id && realGame.status === STATUS.ACTIVE)) {
-                    
-                    if(realGame.status === STATUS.ACTIVE && obj.message.toLowerCase() === realGame.current_word.toLowerCase()){
-                        if(realGame.status === STATUS.ACTIVE){
-
-                            const correctPlayerFound: User = findPlayerBySocketId(realGame.correct_players, socket.id);
-                            if(playerFound){                                
-                                if(!correctPlayerFound){
-                                    io.in(obj.room).emit('receive message', {
-                                        message: `${socket.nickname} guessed the word!`,
-                                        nickname: "[Game]"
-                                    });
-                                    //FIXME: emit notification to user telling them how many points they received for guessing the word
-                                    realGame.updateCorrectPlayers(playerFound);
+                if(playerFound){
+                    if(!((realGame.current_artist) && realGame.current_artist.id === socket.id && realGame.status === STATUS.ACTIVE)) {
+                        
+                        if(realGame.status === STATUS.ACTIVE && obj.message.toLowerCase() === realGame.current_word.toLowerCase()){
+                            if(realGame.status === STATUS.ACTIVE){
+    
+                                const correctPlayerFound: User = findPlayerBySocketId(realGame.correct_players, socket.id);
+                                if(playerFound){
+                                    if(!correctPlayerFound){
+                                        io.in(obj.room).emit('receive message', {
+                                            message: `${socket.nickname} guessed the word!`,
+                                            nickname: "[Game]"
+                                        });
+                                        //FIXME: emit notification to user telling them how many points they received for guessing the word
+                                        realGame.updateCorrectPlayers(playerFound);
+                                    }
                                 }
                             }
+                        } else {
+                            sendMessage(socket, obj);
                         }
+                    
                     } else {
-                        sendMessage(socket, obj);
+                        notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages.',  playerFound.id);
                     }
-                
+
                 } else {
-                    notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'The artist cannot send messages.',  playerFound.id);
+                    notifySocket(NOTIFICATION.ERROR, 'Action not allowed', '',  socket.id);
                 }
+
             }
             
         });
@@ -610,6 +625,18 @@ export default function SiteLogic(server) {
 
     }
 
+    const kickPlayerByIdSocket = (socket) => {
+        socket.on('kick player', (obj) => {
+            const game: Game = findGameByRoomId(obj.gameId);
+            if(game){
+                if(game.host.id === socket.id) game.kickPlayer(obj.playerId);
+            } else {
+                console.error("Game not found");
+            }
+            
+        });
+    }
+
 
     function updateOnlineUsers(user: User): void {
         let userFound = null;
@@ -672,6 +699,8 @@ export default function SiteLogic(server) {
         requestWordSocket(socket);
 
         searchForGameSocket(socket);
+
+        kickPlayerByIdSocket(socket);
 
     });
     

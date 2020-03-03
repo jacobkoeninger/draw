@@ -75,6 +75,12 @@ export default class Board extends React.Component {
             });            
         });
 
+        this.state.socket.on('player kicked', () => {
+            this.setState({
+                kickUser: true
+            });
+        });
+
         this.state.socket.on('game info', (game) => {
             // get info to find out if User is host. if host, then show play button. 
             // on play button click, emit (include user in emit?)
