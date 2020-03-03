@@ -16,6 +16,8 @@ Todo:
   ✔ Prevent chat spam @done(20-03-03 11:34)
     ✔ When a socket sends a message, add a property to that socket holding the current Timestamp, so it can be checked next time the user sends a message @done(20-03-03 11:34)
   ✔ Kick players as host @done(20-03-03 15:01)
+  ✔ Add brush colors @done(20-03-03 15:51)
+  ✔ Verify that multiple games can play concurrently as intended. @done(20-03-03 15:51)
   ☐ Start showing letters as the round gets closer to ending (tips)
   ☐ End round when all users have guessed correctly (timer needs general improvements as well (might be affecting other gamesm, etc))
   ☐ Add whispering
@@ -39,12 +41,12 @@ Todo:
   ☐ Determine whether to allow joining mid game (currently set to only be able to join if status === lobby)
   ☐ Mobile support
   ☐ Finalize the design of the site
-  ☐ Verify that multiple games can play concurrently as intended.
   ☐ Throttle testing
-  ☐ Add brush colors
   ☐ Chat commands ( if message starts with / )
   ☐ Block users (auto kick when hosting a game, and ignore games when searching if they include a blocked player)
-
+  ☐ Keyboard shortcuts (CTRL Z for undo)
+  ☐ Add eraser
+  ☐ Only show grid when artist
 
   Ideas:
     ☐ Some way of progression (xp and leveling up, etc)

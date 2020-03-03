@@ -23,7 +23,6 @@ export default class UserList extends React.Component {
     }
 
     componentDidUpdate = () => {
-        console.log('user list updated')
         if(this.props.artist){
             /* this.setState({
                 artist: this.props.artist

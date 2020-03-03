@@ -54,7 +54,8 @@ export default class GameCanvas extends React.Component {
 
 
     canvasUpdate = (data, canvas) => {
-        console.log(data.getSaveData());
+        //console.log(data.getSaveData());
+        console.log('drawing');
         if(this.state.isArtist){
             this.setState({canvas: canvas});
             this.state.socket.emit('updateCanvas', {
@@ -68,7 +69,7 @@ export default class GameCanvas extends React.Component {
 
     
     getColorPicker = () => {
-        let colorPicker = <TwitterPicker color={ this.state.brushColor } onChangeComplete={ (color) => { this.setState({ brushColor: color.hex }) } } />
+        let colorPicker = <TwitterPicker triangle={"hide"} color={ this.state.brushColor } onChangeComplete={ (color) => { this.setState({ brushColor: color.hex }) } } />
         if(this.state.isArtist){
             return colorPicker;
         } else {
