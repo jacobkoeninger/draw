@@ -86,13 +86,13 @@ export default class UserList extends React.Component {
                 <List
                     itemLayout="vertical"
                     dataSource={this.state.users}
-                    renderItem={user => (
+                    renderItem={user => (                        
                         <Popconfirm
                         title={`Are you sure you want to kick ${user.nickname}?`}
                         onConfirm={(e) => {
                             if(this.state.isHost) this.kickPlayer(user.id);
                         }}
-                        
+                        disabled={!this.state.isHost}                        
                         okText="Yes"
                         cancelText="No"
                     >
