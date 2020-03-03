@@ -86,7 +86,9 @@ var Game = /** @class */ (function () {
             _this.startRound();
         };
         this.updateCorrectPlayers = function (player) {
+            _this.correct_players.push(player);
             var guesser_award = Math.floor(100 / _this.correct_players.length);
+            console.log(guesser_award);
             player.points += guesser_award;
             notifySocket(NOTIFICATION.SUCCESS, "You've received " + guesser_award.toString() + " points!", "", player.id);
             //TODO: award points to the artist.. maybe based off the time when the guess happened (faster = more points)
@@ -96,7 +98,6 @@ var Game = /** @class */ (function () {
                 //this.timer.cancel(); 
                 clearTimeout(_this.timer); // doesn't work
             }
-            _this.correct_players.push(player);
             _this.updateClients();
         };
         this.startRound = function () { return __awaiter(_this, void 0, void 0, function () {

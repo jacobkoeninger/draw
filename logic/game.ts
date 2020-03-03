@@ -102,8 +102,9 @@ export class Game {
     }
 
     updateCorrectPlayers = (player: User) => {        
-
+        this.correct_players.push(player);
         const guesser_award = Math.floor(100 / this.correct_players.length);
+        console.log(guesser_award);
         player.points += guesser_award;
         notifySocket(NOTIFICATION.SUCCESS, `You've received ${guesser_award.toString()} points!`, "", player.id);
 
@@ -119,7 +120,7 @@ export class Game {
 
         }
 
-        this.correct_players.push(player);
+        
         this.updateClients();
 
     }
@@ -400,7 +401,7 @@ export default function SiteLogic(server) {
 
                 if((currentMessage.time - thirdLastMessage.time) < 1000){
                     isSpam = true;
-                }                
+                }
             }
 
             if(!isSpam){
@@ -411,8 +412,6 @@ export default function SiteLogic(server) {
             } else {
                 notifySocket(NOTIFICATION.WARNING, 'SPAM Detected', '', socket.id);
             }
-            
-
         } else {
             notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'Message cannot not be blank.', socket.id);
         }
