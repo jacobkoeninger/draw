@@ -15,6 +15,7 @@ Todo:
   ✔ Click join game button when Room # input is active and user hits Enter @done(20-03-03 10:37)
   ✔ Prevent chat spam @done(20-03-03 11:34)
     ✔ When a socket sends a message, add a property to that socket holding the current Timestamp, so it can be checked next time the user sends a message @done(20-03-03 11:34)
+  ✔ Kick players as host @done(20-03-03 15:01)
   ☐ Start showing letters as the round gets closer to ending (tips)
   ☐ End round when all users have guessed correctly (timer needs general improvements as well (might be affecting other gamesm, etc))
   ☐ Add whispering
@@ -42,7 +43,6 @@ Todo:
   ☐ Throttle testing
   ☐ Add brush colors
   ☐ Chat commands ( if message starts with / )
-  ✔ Kick players as host @done(20-03-03 15:01)
   ☐ Block users (auto kick when hosting a game, and ignore games when searching if they include a blocked player)
 
 

@@ -275,6 +275,7 @@ function SiteLogic(server) {
         socket.join(game.room);
         socket.emit('game joined', game);
         console.log(socket.id + " has joined room " + game.room);
+        game.updateClients();
     };
     function getUniqueRoomId() {
         // Recursively generate ids until one is created that is not taken

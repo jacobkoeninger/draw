@@ -281,7 +281,7 @@ export default function SiteLogic(server) {
      * @param socket 
      */
     const joinGame = (user: User, room: string, socket) => {
-        const game = findGameByRoomId(room);
+        const game: Game = findGameByRoomId(room);
 
         if(!game) {
             notifySocket(NOTIFICATION.ERROR, 'Unable to join game', `Game not found with id "${room}".`, socket.id);
@@ -311,7 +311,8 @@ export default function SiteLogic(server) {
         socket.join(game.room);
         socket.emit('game joined', game);
         console.log(`${socket.id} has joined room ${game.room}`);
-
+        
+        game.updateClients();
     }
 
     function getUniqueRoomId(): string {

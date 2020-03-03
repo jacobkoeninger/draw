@@ -17,6 +17,7 @@ export default class UserList extends React.Component {
             artist: null,
             correctPlayers: [],
             gameId: null,
+            hostId: null,
             isHost: false
         }
     }
@@ -73,6 +74,7 @@ export default class UserList extends React.Component {
                 artist: game.current_artist,
                 correctPlayers: game.correct_players,
                 gameId: game.room,
+                hostId: game.host.id
             });
             if(game.host.id === this.state.socket.id) {
                 this.setState({ isHost: true });
@@ -101,7 +103,22 @@ export default class UserList extends React.Component {
                         <List.Item.Meta
                         key={user.id}
                         avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                        title={<a href="#">{user.nickname}</a>}
+                        title={<a href="#">{(() => {
+                            if (user.id === this.state.hostId){
+                               return '👑 '; 
+                            } else {
+                                return '';
+                            }
+                        })() + user.nickname }</a>}
+                        style={(() => {
+                            if(user.id === this.state.socket.id){
+                                return {
+                                    background: '#f9f9f9',
+                                    padding: '10px 10px',
+                                    border: '1px solid #eee'
+                                };
+                            }
+                        })()}
                         />
                     </List.Item>
                     </Popconfirm>
