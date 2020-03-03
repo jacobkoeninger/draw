@@ -54,8 +54,6 @@ export default class GameChat extends React.Component {
         
     }
 
-    
-    
     receiveMessageSocket = () => {
         this.state.socket.on('receive message', (obj) => {
             

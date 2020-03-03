@@ -328,6 +328,38 @@ function SiteLogic(server) {
         });
         return playerFound;
     }
+    function sendMessage(socket, message) {
+        if (message.message != "") {
+            if (!socket.messages)
+                socket.messages = [];
+            socket.messages.push({
+                message: message.message,
+                time: new Date().getTime()
+            });
+            var isSpam = false;
+            if (socket.messages.length >= 3) {
+                // If difference between this and last 2 messages is < ~2 seconds, then do not allow message to be sent ( and notify )
+                // compare current message time to message time of 3 messages ago
+                var thirdLastMessage = socket.messages[socket.messages.length - (3)];
+                var currentMessage = socket.messages[socket.messages.length - 1];
+                if ((currentMessage.time - thirdLastMessage.time) < 1000) {
+                    isSpam = true;
+                }
+            }
+            if (!isSpam) {
+                io["in"](message.room).emit('receive message', {
+                    message: message.message,
+                    nickname: socket.nickname
+                });
+            }
+            else {
+                notifySocket(NOTIFICATION.WARNING, 'SPAM Detected', '', socket.id);
+            }
+        }
+        else {
+            notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'Message cannot not be blank.', socket.id);
+        }
+    }
     var chatMessageSocket = function (socket) {
         socket.on('send message', function (obj) {
             var realGame = findGameByRoomId(obj.room);
@@ -350,15 +382,7 @@ function SiteLogic(server) {
                         }
                     }
                     else {
-                        if (obj.message != "") {
-                            io["in"](obj.room).emit('receive message', {
-                                message: obj.message,
-                                nickname: socket.nickname
-                            });
-                        }
-                        else {
-                            notifySocket(NOTIFICATION.ERROR, 'Action not allowed', 'Message cannot not be blank.', socket.id);
-                        }
+                        sendMessage(socket, obj);
                     }
                 }
                 else {
