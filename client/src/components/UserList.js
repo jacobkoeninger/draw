@@ -2,7 +2,8 @@ import React from 'react';
 import {
     List,
     Icon,
-    Avatar
+    Avatar,
+    Popconfirm
 } from 'antd';
 import { Socket } from 'dgram';
 
@@ -81,15 +82,21 @@ export default class UserList extends React.Component {
         return (
             <div className="userList">
                 <h4> { this.getArtistNickname() } </h4>
+                
                 <List
                     itemLayout="vertical"
                     dataSource={this.state.users}
                     renderItem={user => (
-                    <List.Item onClick={(e) => {
-                        if(this.state.isHost) {
-                            this.kickPlayer(user.id);
-                        }
-                    }}>
+                        <Popconfirm
+                        title={`Are you sure you want to kick ${user.nickname}?`}
+                        onConfirm={(e) => {
+                            if(this.state.isHost) this.kickPlayer(user.id);
+                        }}
+                        
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                    <List.Item>
                         { /* this.getStar(user.id) */ }
                         <List.Item.Meta
                         key={user.id}
@@ -97,6 +104,7 @@ export default class UserList extends React.Component {
                         title={<a href="#">{user.nickname}</a>}
                         />
                     </List.Item>
+                    </Popconfirm>
                     )}
                 />
             </div>

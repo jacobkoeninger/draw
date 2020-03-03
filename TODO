@@ -42,7 +42,7 @@ Todo:
   ☐ Throttle testing
   ☐ Add brush colors
   ☐ Chat commands ( if message starts with / )
-  ☐ Kick players as host
+  ✔ Kick players as host @done(20-03-03 15:01)
   ☐ Block users (auto kick when hosting a game, and ignore games when searching if they include a blocked player)
 
 
