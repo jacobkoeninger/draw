@@ -134,6 +134,7 @@ var Game = /** @class */ (function () {
         this.updateHost = function () {
             _this.host = _this.players[Math.floor(Math.random() * _this.players.length)];
             notifySocket(NOTIFICATION.INFO, 'You are now the host!', 'You have been made the new host, as the previous host disconnect', _this.host.id);
+            _this.updateClients();
         };
         this.kickPlayer = function (id) {
             var player = _this.players.find(function (p) { return p.id === id; });

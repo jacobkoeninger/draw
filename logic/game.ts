@@ -213,6 +213,7 @@ export class Game {
     updateHost = () => {
         this.host = this.players[Math.floor(Math.random() * this.players.length)];
         notifySocket(NOTIFICATION.INFO, 'You are now the host!', 'You have been made the new host, as the previous host disconnect', this.host.id);
+        this.updateClients();
     }
 
     kickPlayer = (id: string) => {        
