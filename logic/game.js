@@ -55,6 +55,13 @@ function notifySocket(type, message, description, socketId) {
         description: description
     });
 }
+function notifyRoom(type, message, description, roomId) {
+    io["in"](roomId).emit('notification', {
+        type: type,
+        message: message,
+        description: description
+    });
+}
 var STATUS;
 (function (STATUS) {
     STATUS["ACTIVE"] = "active";
@@ -124,6 +131,27 @@ var Game = /** @class */ (function () {
                 }
             });
         }); };
+        this.updateHost = function () {
+            _this.host = _this.players[Math.floor(Math.random() * _this.players.length)];
+            notifySocket(NOTIFICATION.INFO, 'You are now the host!', 'You have been made the new host, as the previous host disconnect', _this.host.id);
+        };
+        this.kickPlayer = function (id) {
+            var player = _this.players.find(function (p) { return p.id === id; });
+            if (_this.host.id === player.id) {
+                _this.updateHost();
+            }
+            if (_this.current_artist && (_this.current_artist.id === id)) {
+                notifyRoom(NOTIFICATION.INFO, 'Round ended', 'Artist disconnected', _this.room);
+                _this.endRound();
+            }
+            _this.players = _this.players.filter(function (player) {
+                if (player.id !== id) {
+                    return true;
+                }
+                return false;
+            });
+            _this.updateClients();
+        };
         this.status = STATUS.LOBBY;
         this.isPrivate = isPrivate;
         this.host = host;
@@ -453,7 +481,7 @@ function SiteLogic(server) {
                     else {
                         // Give host to random player if host leaves
                         if (socketId === game.host.id) {
-                            game.host = game.players[Math.floor(Math.random() * game.players.length)];
+                            game.updateHost();
                         }
                     }
                 }

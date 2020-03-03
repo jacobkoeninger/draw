@@ -20,8 +20,15 @@ enum NOTIFICATION {
     SUCCESS     = 'success'
 }
 
-function notifySocket(type: NOTIFICATION, message: string, description: string, socketId: string){
+function notifySocket(type: NOTIFICATION, message: string, description: string, socketId: string): void {
     io.to(socketId).emit('notification', {
+        type: type,
+        message: message,
+        description: description
+    });
+}
+function notifyRoom(type: NOTIFICATION, message: string, description: string, roomId: string): void {
+    io.in(roomId).emit('notification', {
         type: type,
         message: message,
         description: description
@@ -202,6 +209,35 @@ export class Game {
     clearBoards() {
         io.in(this.room).emit('clear boards');
     }
+
+    updateHost = () => {
+        this.host = this.players[Math.floor(Math.random() * this.players.length)];
+        notifySocket(NOTIFICATION.INFO, 'You are now the host!', 'You have been made the new host, as the previous host disconnect', this.host.id);
+    }
+
+    kickPlayer = (id: string) => {        
+        
+        const player = this.players.find((p: User) => p.id === id);
+
+        if(this.host.id === player.id) {
+            this.updateHost();
+        }
+
+        if(this.current_artist && (this.current_artist.id === id)) {
+            notifyRoom(NOTIFICATION.INFO, 'Round ended', 'Artist disconnected', this.room);
+            this.endRound();
+        }
+
+        this.players = this.players.filter((player) => {
+            if(player.id !== id) {
+                return true;
+            }
+            return false;
+        });
+
+        this.updateClients();
+    }
+
 
     updateClients() {
         io.in(this.room).emit('game info', {
@@ -525,7 +561,7 @@ export default function SiteLogic(server) {
                     } else {
                         // Give host to random player if host leaves
                         if(socketId === game.host.id){
-                            game.host = game.players[Math.floor(Math.random() * game.players.length)];
+                            game.updateHost();
                         }
 
                     }
