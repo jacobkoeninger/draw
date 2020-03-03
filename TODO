@@ -40,6 +40,10 @@ Todo:
   ☐ Finalize the design of the site
   ☐ Verify that multiple games can play concurrently as intended.
   ☐ Throttle testing
+  ☐ Add brush colors
+  ☐ Chat commands ( if message starts with / )
+  ☐ Kick players as host
+  ☐ Block users (auto kick when hosting a game, and ignore games when searching if they include a blocked player)
 
 
   Ideas:

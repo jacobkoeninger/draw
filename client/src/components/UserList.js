@@ -13,7 +13,8 @@ export default class UserList extends React.Component {
             users: props.users,
             socket: props.socket,
             artist: null,
-            correctPlayers: []
+            correctPlayers: [],
+            
         }
     }
 

@@ -91,7 +91,6 @@ var Game = /** @class */ (function () {
             console.log(guesser_award);
             player.points += guesser_award;
             notifySocket(NOTIFICATION.SUCCESS, "You've received " + guesser_award.toString() + " points!", "", player.id);
-            //TODO: award points to the artist.. maybe based off the time when the guess happened (faster = more points)
             if (_this.correct_players.length == _this.players.length - 1) {
                 //this.endRound();
                 //? FIXME: cancel timer so that the rounds ends immediately when all users guessed correctly before the timer ran out 
@@ -136,6 +135,7 @@ var Game = /** @class */ (function () {
         this.words_used = [];
         this.max_rounds = max_rounds;
         this.current_round = 0;
+        this.kicked_players = [];
         this.lobby();
     }
     Game.prototype.endRound = function () {
@@ -329,6 +329,36 @@ function SiteLogic(server) {
         });
         return playerFound;
     }
+    function kickPlayerByNickname(game, socket, nickname) {
+        console.log(game);
+    }
+    var commands = [
+        {
+            name: "kick",
+            action: function (game, socket, args) {
+            }
+        },
+        {
+            name: "leave",
+            action: function (game, socket, args) {
+            }
+        }
+    ];
+    function chatCommand(socket, message) {
+        var msg = message.message;
+        var args = msg.split(" ");
+        var command = args[0].slice(1);
+        args.shift();
+        var game = findGameByRoomId(message.room);
+        var cmd = commands.find(function (x) { return x.name === command; });
+        if (typeof cmd !== "undefined") {
+            var x = cmd.action.bind(game, socket, args);
+            x();
+        }
+        else {
+            notifySocket(NOTIFICATION.ERROR, 'Command not found', "Could not command with name " + command, socket.id);
+        }
+    }
     function sendMessage(socket, message) {
         if (message.message != "") {
             if (!socket.messages)
@@ -348,10 +378,15 @@ function SiteLogic(server) {
                 }
             }
             if (!isSpam) {
-                io["in"](message.room).emit('receive message', {
-                    message: message.message,
-                    nickname: socket.nickname
-                });
+                if (message.message.charAt(0) === "/") {
+                    chatCommand(socket, message);
+                }
+                else {
+                    io["in"](message.room).emit('receive message', {
+                        message: message.message,
+                        nickname: socket.nickname
+                    });
+                }
             }
             else {
                 notifySocket(NOTIFICATION.WARNING, 'SPAM Detected', '', socket.id);
@@ -393,12 +428,15 @@ function SiteLogic(server) {
         });
     };
     function kickPlayer(game, socketId) {
+        //TODO: check if this user is host or current artist
+        console.log(game);
         game.players = game.players.filter(function (player) {
             if (player.id !== socketId) {
                 return true;
             }
             return false;
         });
+        game.updateClients();
     }
     var handleDisconnect = function (socketId) {
         games.forEach(function (game) {

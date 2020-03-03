@@ -46,14 +46,12 @@ export class Game {
     public players: Array<User>;
     public words: Array<string>;
     public words_used: Array<string>;
-
     public correct_players: Array<User>;
-    
     public current_round: number;
     public current_artist: User;
     public current_word: string;
-
     public player_turns: Array<User>;
+    public kicked_players: Array<User>;
 
     constructor(host: User, room: string, words: Array<string>, max_rounds: number, max_players: number, round_length: number, isPrivate: boolean){
         this.status = STATUS.LOBBY;
@@ -67,6 +65,7 @@ export class Game {
         this.words_used = [];
         this.max_rounds = max_rounds;
         this.current_round = 0;
+        this.kicked_players = [];
         this.lobby();
     }   
     
@@ -108,8 +107,6 @@ export class Game {
         player.points += guesser_award;
         notifySocket(NOTIFICATION.SUCCESS, `You've received ${guesser_award.toString()} points!`, "", player.id);
 
-        //TODO: award points to the artist.. maybe based off the time when the guess happened (faster = more points)
-
         if(this.correct_players.length == this.players.length - 1){
             //this.endRound();
             
@@ -119,7 +116,6 @@ export class Game {
             clearTimeout(this.timer); // doesn't work
 
         }
-
         
         this.updateClients();
 
@@ -381,10 +377,52 @@ export default function SiteLogic(server) {
         message: string;
         room: string;
     }
+    interface Command {
+        name: string;
+        action: Function
+    }
+    function kickPlayerByNickname(game: Game, socket, nickname: string){
+        console.log(game);
+    }
+    const commands: Array<Command> = [
+        {
+            name: "kick",
+            action: (game: Game, socket, args: Array<string>) => {
+
+            }
+        },
+        {
+            name: "leave",
+            action: (game: Game, socket, args: Array<string>) => {
+                
+            }
+        }
+    ];
+
+
+    function chatCommand(socket, message: Message){
+        const msg = message.message;
+        const args: Array<string> = msg.split(" ");
+        const command = args[0].slice(1);
+        args.shift();
+        const game: Game = findGameByRoomId(message.room);
+        const cmd: Command = commands.find(x => x.name === command);
+        if(typeof cmd !== "undefined") {            
+            const x: Function = cmd.action.bind(
+                game,
+                socket,
+                args
+            );
+            x();
+
+        } else {
+            notifySocket(NOTIFICATION.ERROR, 'Command not found', `Could not command with name ${command}`, socket.id);
+        }
+    }
 
     function sendMessage(socket, message: Message){
-        if(message.message != ""){                            
-            
+        if(message.message != ""){
+
             if(!socket.messages) socket.messages = [];
             
             socket.messages.push({
@@ -405,10 +443,16 @@ export default function SiteLogic(server) {
             }
 
             if(!isSpam){
-                io.in(message.room).emit('receive message', {
-                    message: message.message,
-                    nickname: socket.nickname
-                });
+
+                if(message.message.charAt(0) === "/"){
+                    chatCommand(socket, message);
+                } else {
+                    io.in(message.room).emit('receive message', {
+                        message: message.message,
+                        nickname: socket.nickname
+                    });
+                }
+
             } else {
                 notifySocket(NOTIFICATION.WARNING, 'SPAM Detected', '', socket.id);
             }
@@ -456,12 +500,15 @@ export default function SiteLogic(server) {
     }
 
     function kickPlayer(game: Game, socketId: string){
+        //TODO: check if this user is host or current artist
+        console.log(game);
         game.players = game.players.filter((player) => {
             if(player.id !== socketId){
                 return true;
             }
             return false;
         });
+        game.updateClients();
     }
 
     const handleDisconnect = (socketId: string) => {
