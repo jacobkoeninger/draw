@@ -211,12 +211,15 @@ export class Game {
     }
 
     updateHost = () => {
+        const originalHost = this.host;
         this.host = this.players[Math.floor(Math.random() * this.players.length)];
-        notifySocket(NOTIFICATION.INFO, 'You are now the host!', 'You have been made the new host, as the previous host disconnect', this.host.id);
         this.updateClients();
+        if(originalHost !== this.host) {
+            notifySocket(NOTIFICATION.INFO, 'You are now the host!', 'You have been made the new host, as the previous host disconnect', this.host.id);
+        }
     }
 
-    kickPlayer = (id: string) => {        
+    kickPlayer = (id: string) => {
         
         const player = this.players.find((p: User) => p.id === id);
 

@@ -88,8 +88,6 @@ export default class Board extends React.Component {
                 game: game
             });
             
-            console.log(game);
-
             if(game.host.id == this.state.socket.id){
                 this.setState({ isHost: true });
             }
