@@ -161,8 +161,6 @@ export class Game {
 
     }
 
-    
-
     updateCurrentRound() {
        
        if((this.current_round + 1) > this.max_rounds){

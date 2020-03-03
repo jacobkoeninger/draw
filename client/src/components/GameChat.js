@@ -90,11 +90,6 @@ export default class GameChat extends React.Component {
 
     render(){
 
-        
-        
-        
-        
-
         return (
             <div className="chat">
                 <h4>{ this.props.user.nickname }</h4>
@@ -106,6 +101,7 @@ export default class GameChat extends React.Component {
                         message: e.target.value
                     })}
                     value={this.state.message}
+                    onKeyDown={(e) => { if(e.key === "Enter") this.sendMessage() }}
                 />
                 <Button
                     type="primary"
