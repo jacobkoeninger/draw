@@ -15,7 +15,7 @@ import {
     Link
   } from "react-router-dom";
 
-let socket = io('http://127.0.0.1:3000');
+let socket = io('http://127.0.0.1:3001');
 
 let user = {
     room: null,
