@@ -6,7 +6,7 @@ import './App.css';
 
 export default class App extends React.Component {
   
-  socket = io(`http://localhost:3001`);
+  socket = io(`http://127.0.0.1:3001`);
   
 
   componentDidMount = _ => {
